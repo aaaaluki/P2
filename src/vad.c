@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "pav_analysis.h"
+
 #include "vad.h"
 
 const float FRAME_TIME = 10.0F; /* in ms. */
@@ -36,13 +38,10 @@ Features compute_features(const float *x, int N) {
    * Input: x[i] : i=0 .... N-1 
    * Ouput: computed features
    */
-  /* 
-   * DELETE and include a call to your own functions
-   *
-   * For the moment, compute random value between 0 and 1 
-   */
   Features feat;
-  feat.zcr = feat.p = feat.am = (float) rand()/RAND_MAX;
+  feat.zcr = compute_zcr(x, N, 16000);
+  feat.p = compute_power(x, N);
+  feat.am = compute_am(x, N);
   return feat;
 }
 
@@ -90,15 +89,16 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {
   switch (vad_data->state) {
   case ST_INIT:
     vad_data->state = ST_SILENCE;
+    vad_data->p1 = f.p;
     break;
 
   case ST_SILENCE:
-    if (f.p > 0.95)
+    if (f.p > vad_data->p1)
       vad_data->state = ST_VOICE;
     break;
 
   case ST_VOICE:
-    if (f.p < 0.01)
+    if (f.p < vad_data->p1)
       vad_data->state = ST_SILENCE;
     break;
 
