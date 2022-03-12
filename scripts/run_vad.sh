@@ -3,6 +3,20 @@
 # Be sure that this file has execution permissions:
 # Use the nautilus explorer or chmod +x run_vad.sh
 
+case $# in
+    2)
+        ALPHA1=$1
+        ALPHA2=$2
+    ;;
+    *)
+        ALPHA1=0
+        ALPHA2=0
+    ;;
+esac
+
+echo $ALPHA1
+echo $ALPHA2
+
 # Write here the name and path of your program and database
 DIR_P2=$HOME/PAV/P2
 DB=$DIR_P2/db.v4
@@ -18,7 +32,7 @@ for filewav in $DB/*/*wav; do
 
     filevad=${filewav/.wav/.vad}
 
-    $CMD -i $filewav -o $filevad || exit 1
+    $CMD -1 $ALPHA1 -2 $ALPHA2 -i $filewav -o $filevad || exit 1
 
 # Alternatively, uncomment to create output wave files
 #    filewavOut=${filewav/.wav/.vad.wav}
