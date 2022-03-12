@@ -118,8 +118,8 @@ def main(alpha1, alpha2) -> None:
 
 
 if __name__ == '__main__':
-    alpha1 = np.linspace(1, 2, num=10)
-    alpha2 = np.linspace(5, 15, num=10)
+    alpha1 = np.linspace(1.1, 1.2, num=10)
+    alpha2 = np.linspace(10.7, 10.8, num=10)
 
     if PLOT:
         plot(alpha1, alpha2)

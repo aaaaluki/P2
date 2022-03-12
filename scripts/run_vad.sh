@@ -9,8 +9,8 @@ case $# in
         ALPHA2=$2
     ;;
     *)
-        ALPHA1=0
-        ALPHA2=0
+        ALPHA1=1.1667
+        ALPHA2=10.7222
     ;;
 esac
 
