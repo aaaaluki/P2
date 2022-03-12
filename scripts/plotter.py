@@ -9,7 +9,7 @@ import numpy as np
 
 # Plot all lines in the same plot or not
 ONE_FOR_ALL = False
-
+SAVE_IMAGE = False
 
 # Formated info message
 def info(msg: str) -> None:
@@ -97,10 +97,11 @@ def plotter(filename: str) -> None:
         fig.tight_layout()
 
     # Save plot to PNG file
-    idx = filename.rfind('.')
-    savefile ='{}.png'.format(filename[:idx])
-    plt.savefig(savefile, dpi=300)
-    info('Plot saved as {}'.format(savefile))
+    if SAVE_IMAGE:
+        idx = filename.rfind('.')
+        savefile ='{}.png'.format(filename[:idx])
+        plt.savefig(savefile, dpi=300)
+        info('Plot saved as {}'.format(savefile))
 
 
 # Main
