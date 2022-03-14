@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
+#-*- coding:utf-8 -*-
 
 import os
 import subprocess
@@ -10,7 +11,7 @@ import numpy as np
 from matplotlib import cm
 from progress.bar import Bar
 
-PLOT = False
+PLOT = True
 DIR = Path(os.path.realpath(__file__)).parent.parent.absolute()
 CMD = DIR.as_posix() + '/scripts/run_vad_opt.sh'
 
@@ -73,6 +74,8 @@ def plot(alpha1: np.ndarray, alpha2: np.ndarray) -> np.ndarray:
 
     ax.zaxis.set_major_formatter('{x:.02f}')
     fig.colorbar(surf, shrink=0.5, aspect=5)
+    plt.xlabel('Alpha 1')
+    plt.ylabel('Alpha 2')
 
     # Find maximum
     ind = np.unravel_index(np.argmax(Z, axis=None), Z.shape)
@@ -88,13 +91,11 @@ def plot(alpha1: np.ndarray, alpha2: np.ndarray) -> np.ndarray:
 
 def main(alpha1, alpha2) -> None:
     n = len(alpha1)*len(alpha2)
-
-    print('iterations: {}'.format(len(alpha1)*len(alpha2)))
-    bar = Bar('Progress', fill='#', suffix='%(percent).2f%% - elapsed:%(elapsed)ds  eta:%(eta)ds',
-                max=n)
-
     best_alphas = []
     best_result = {'total':0.0}
+
+    bar = Bar('Progress', fill='#', suffix='%(percent).2f%% - elapsed:%(elapsed)ds  eta:%(eta)ds',
+                max=n)
 
     errors = 0
     for a1 in alpha1:
@@ -118,8 +119,8 @@ def main(alpha1, alpha2) -> None:
 
 
 if __name__ == '__main__':
-    alpha1 = np.linspace(1.1, 1.2, num=10)
-    alpha2 = np.linspace(10.7, 10.8, num=10)
+    alpha1 = np.linspace(-10, 10, num=10)
+    alpha2 = np.linspace(0, 40, num=10)
 
     if PLOT:
         plot(alpha1, alpha2)
