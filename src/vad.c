@@ -15,7 +15,7 @@ const float FRAME_TIME = 10.0F; /* in ms. */
  */
 
 const char *state_str[] = {
-  "UNDEF", "S", "V", "INIT", "MAYBE SILENCE", "MAYBE VOICE"
+  "UNDEF", "S", "V", "INIT"
 };
 
 const char *state2str(VAD_STATE st) {
@@ -78,7 +78,7 @@ unsigned int vad_frame_size(VAD_DATA *vad_data) {
  * using a Finite State Automata
  */
 
-VAD_STATE vad(VAD_DATA *vad_data, float *x) {
+VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
 
   /* 
    * TODO: You can change this, using your own features,
@@ -91,17 +91,52 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {
   switch (vad_data->state) {
   case ST_INIT:
     vad_data->state = ST_SILENCE;
-    vad_data->p1 = f.p;
+    vad_data->p1 = f.p;   //pillamos valor referencia
     break;
 
   case ST_SILENCE:
-    if (f.p > vad_data->p1 + vad_data->alpha2)
-      vad_data->state = ST_VOICE;
+
+    if (f.p > vad_data->p1 + vad_data->alpha1 && f.p < vad_data->p1 + vad_data->alpha2)
+    {
+        vad_data->state = ST_MAYBE_VOICE;
+    }else{
+        vad_data->state = ST_SILENCE;
+    }
+    break;
+
+  case ST_MAYBE_SILENCE:
+          //si estamos aqui un cierto tiempo pasamos a silencio
+      if (f.p < vad_data->p1 + vad_data->alpha1 && f.p < vad_data->p1 + vad_data->alpha2)
+      {
+          vad_data->state = ST_SILENCE; //FALTA COMPROBAR EL TIEMPO QUE ESTAMOS EN ESTE ESTADO
+      }
+      else{
+          vad_data->state = ST_VOICE;
+      }
+    break;
+
+  case ST_MAYBE_VOICE:
+
+        if (f.p > vad_data->p1 + vad_data->alpha1)
+        {
+            //si estamos aqui un cierto tiempo pasamos a voz
+            if (f.p > vad_data->p1 + vad_data->alpha2)
+            {
+                vad_data->state = ST_VOICE;
+            }else{
+                vad_data->state = ST_SILENCE;              
+            }
+        }   
     break;
 
   case ST_VOICE:
-    if (f.p < vad_data->p1 + vad_data->alpha1)
-      vad_data->state = ST_SILENCE;
+    
+    if (f.p > vad_data->p1 + vad_data->alpha1 && f.p > vad_data->p1 + vad_data->alpha2) 
+    {
+        vad_data->state = ST_VOICE;
+    }else{
+        vad_data->state = ST_MAYBE_SILENCE;
+    } 
     break;
 
   case ST_UNDEF:
