@@ -15,7 +15,7 @@ const float FRAME_TIME = 10.0F; /* in ms. */
  */
 
 const char *state_str[] = {
-  "UNDEF", "S", "V", "INIT"
+  "UNDEF", "S", "V", "INIT", "MV", "MS"
 };
 
 const char *state2str(VAD_STATE st) {
@@ -154,5 +154,5 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
 }
 
 void vad_show_state(const VAD_DATA *vad_data, FILE *out) {
-  fprintf(out, "%d\t%f\n", vad_data->state, vad_data->last_feature);
+  fprintf(out, "%s\t%f\n", state2str(vad_data->state), vad_data->last_feature);
 }
