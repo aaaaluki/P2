@@ -3,19 +3,14 @@
 # Be sure that this file has execution permissions:
 # Use the nautilus explorer or chmod +x run_vad.sh
 
-case $# in
-    2)
-        ALPHA1=$1
-        ALPHA2=$2
-    ;;
-    *)
-        ALPHA1=1.1667
-        ALPHA2=10.7222
-    ;;
-esac
-
-echo $ALPHA1
-echo $ALPHA2
+if [[ $# -ge 2 ]];
+then
+    ALPHA1=$1
+    ALPHA2=$2
+else
+    ALPHA1=1.1667
+    ALPHA2=10.7222
+fi
 
 # Write here the name and path of your program and database
 DIR_P2=$HOME/PAV/P2

@@ -1,8 +1,9 @@
 #!/bin/bash
 
-wavFile="pav_4151.wav"
-vadFile="pav_4151.vad"
-labFile="pav_4151.lab"
+file="pav_4151"
+wavFile=$file".wav"
+vadFile=$file".vad"
+labFile=$file".lab"
 
 for alpha1 in $(seq 0.5 0.5 1.5)
 do 
