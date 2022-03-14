@@ -50,12 +50,22 @@ def plot(alpha1: np.ndarray, alpha2: np.ndarray) -> np.ndarray:
     file = open(filename, 'w')
     file.write('{},{},{}\n'.format(na1, na2, na1*na2))
 
+    # Vars for finding max
+    alpha1_max = 0
+    alpha2_max = 0
+    val_max = 0
+
     Z = np.zeros((na2, na1))
     for i in range(na1):
         for j in range(na2):
             result = None
             while result is None:
                 result = f(alpha1[i], alpha2[j])
+
+            if result['total'] > val_max:
+                val_max = result['total']
+                alpha1_max = alpha1[i]
+                alpha2_max = alpha2[j]
 
             Z[j][i] = result['total']
 
@@ -64,6 +74,9 @@ def plot(alpha1: np.ndarray, alpha2: np.ndarray) -> np.ndarray:
             bar.next()
     bar.finish()
     file.close()
+
+    # Show maximum
+    print('Max value: {} -> alpha1: {}, alpha2: {}'.format(val_max, alpha1_max, alpha2_max))
 
     # Plot the surface.
     X, Y = np.meshgrid(alpha1, alpha2)
@@ -76,13 +89,6 @@ def plot(alpha1: np.ndarray, alpha2: np.ndarray) -> np.ndarray:
     fig.colorbar(surf, shrink=0.5, aspect=5)
     plt.xlabel('Alpha 1')
     plt.ylabel('Alpha 2')
-
-    # Find maximum
-    ind = np.unravel_index(np.argmax(Z, axis=None), Z.shape)
-    alpha1_max = X[0][ind[0]]
-    alpha2_max = Y[ind[1]][0]
-    val_max = Z[ind[1]][ind[0]]
-    print('Max value: {} -> alpha1: {}, alpha2: {}'.format(val_max, alpha1_max, alpha2_max))
     
     plt.show()
 
@@ -119,8 +125,8 @@ def main(alpha1, alpha2) -> None:
 
 
 if __name__ == '__main__':
-    alpha1 = np.linspace(-10, 10, num=10)
-    alpha2 = np.linspace(0, 40, num=10)
+    alpha1 = np.linspace(4, 5, num=10)
+    alpha2 = np.linspace(10, 11, num=10)
 
     if PLOT:
         plot(alpha1, alpha2)
