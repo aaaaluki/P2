@@ -96,7 +96,7 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
 
   case ST_SILENCE:
 
-    if (f.p > vad_data->p1 + vad_data->alpha1 && f.p < vad_data->p1 + vad_data->alpha2)
+    if (f.p < vad_data->p1 + vad_data->alpha1)
     {
         vad_data->state = ST_SILENCE;
     }else{

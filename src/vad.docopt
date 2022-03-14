@@ -11,6 +11,8 @@ Options:
    -w FILE, --output-wav=FILE  WAVE file with silences cleared
    -1 FLOAT, --alpha1=FLOAT    Umbral voz -> silencio [default: 1.1667]
    -2 FLOAT, --alpha2=FLOAT    Umbral silencio -> voz [default: 10.7222]
+   -3 INT, --TV=INT            tiempo para entrar de Maybe Voice a voice [default: 5]
+   -4 INT, --TS=INT           tiempo para entrar de Maybe Silence a Silence [default: 5]
    -v, --verbose  Show debug information
    -h, --help     Show this screen
    --version      Show the version of the project
