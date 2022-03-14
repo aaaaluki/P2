@@ -87,11 +87,14 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
 
   Features f = compute_features(x, vad_data->frame_length);
   vad_data->last_feature = f.p; /* save feature, in case you want to show */
+  int esperaV, esperaS; 
 
   switch (vad_data->state) {
   case ST_INIT:
     vad_data->state = ST_SILENCE;
     vad_data->p1 = f.p;   //pillamos valor referencia
+    esperaS=0;    //no se si hace falta inicializarlos aquí
+    esperaV=0;
     break;
 
   case ST_SILENCE:
@@ -101,30 +104,36 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
         vad_data->state = ST_SILENCE;
     }else{
         vad_data->state = ST_MAYBE_VOICE;
+        esperaV=0;
     }
     break;
 
   case ST_MAYBE_SILENCE:
-          //si estamos aqui un cierto tiempo pasamos a silencio
       if (f.p < vad_data->p1 + vad_data->alpha1 && f.p < vad_data->p1 + vad_data->alpha2){
-          vad_data->state = ST_MAYBE_SILENCE; //FALTA COMPROBAR EL TIEMPO QUE ESTAMOS EN ESTE ESTADO
-          //if(hemos estado x tiempo en este estado)
-          //vad_data->state = ST_SILENCE;
-      }
-      else{
+          if (esperaS == 5) //cambiar 5 por args.TS
+          {
+              vad_data->state = ST_SILENCE; 
+          }else
+          {
+              vad_data->state = ST_MAYBE_SILENCE;
+              esperaS++;
+          }
+      }else{
             vad_data->state = ST_VOICE;
       }
     break;
 
   case ST_MAYBE_VOICE:
-
         if (f.p > vad_data->p1 + vad_data->alpha1)
         {
             vad_data->state = ST_MAYBE_VOICE;
-            //if (f.p > vad_data->p1 + vad_data->alpha2 && estamos x tiempo en este estado)
-            //{
-                //vad_data->state = ST_VOICE;
-            //}
+            if (f.p > vad_data->p1 + vad_data->alpha2 && esperaV == 5)
+            {
+                vad_data->state = ST_VOICE;
+            }else{
+                vad_data->state = ST_MAYBE_VOICE;
+                esperaV++;
+            }
         }else
         {
             vad_data->state = ST_SILENCE;
@@ -132,13 +141,13 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
           
     break;
 
-  case ST_VOICE:
-    
+  case ST_VOICE: 
     if (f.p > vad_data->p1 + vad_data->alpha1 && f.p > vad_data->p1 + vad_data->alpha2) 
     {
         vad_data->state = ST_VOICE;
     }else{
         vad_data->state = ST_MAYBE_SILENCE;
+        esperaS=0;
     } 
     break;
 
