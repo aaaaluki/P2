@@ -26,6 +26,7 @@ int main(int argc, char *argv[]) {
 
   char	*input_wav, *output_vad, *output_wav;
   float alpha1, alpha2;
+  int TV,TS;  //Tiempos de Maybe Silence/Voice a Silence/Voice
 
   DocoptArgs args = docopt(argc, argv, /* help */ 1, /* version */ "2.0");
 
@@ -35,6 +36,8 @@ int main(int argc, char *argv[]) {
   output_wav = args.output_wav;
   alpha1 = atof(args.alpha1);
   alpha2 = atof(args.alpha2);
+  TV = atoi(args.TV);
+  TS = atoi(args.TS);
 
   if (input_wav == 0 || output_vad == 0) {
     fprintf(stderr, "%s\n", args.usage_pattern);

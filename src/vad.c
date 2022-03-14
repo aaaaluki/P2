@@ -96,22 +96,23 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
 
   case ST_SILENCE:
 
-    if (f.p > vad_data->p1 + vad_data->alpha1 && f.p < vad_data->p1 + vad_data->alpha2)
+    if (f.p < vad_data->p1 + vad_data->alpha1)
     {
-        vad_data->state = ST_MAYBE_VOICE;
-    }else{
         vad_data->state = ST_SILENCE;
+    }else{
+        vad_data->state = ST_MAYBE_VOICE;
     }
     break;
 
   case ST_MAYBE_SILENCE:
           //si estamos aqui un cierto tiempo pasamos a silencio
-      if (f.p < vad_data->p1 + vad_data->alpha1 && f.p < vad_data->p1 + vad_data->alpha2)
-      {
-          vad_data->state = ST_SILENCE; //FALTA COMPROBAR EL TIEMPO QUE ESTAMOS EN ESTE ESTADO
+      if (f.p < vad_data->p1 + vad_data->alpha1 && f.p < vad_data->p1 + vad_data->alpha2){
+          vad_data->state = ST_MAYBE_SILENCE; //FALTA COMPROBAR EL TIEMPO QUE ESTAMOS EN ESTE ESTADO
+          //if(hemos estado x tiempo en este estado)
+          //vad_data->state = ST_SILENCE;
       }
       else{
-          vad_data->state = ST_VOICE;
+            vad_data->state = ST_VOICE;
       }
     break;
 
@@ -119,14 +120,16 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
 
         if (f.p > vad_data->p1 + vad_data->alpha1)
         {
-            //si estamos aqui un cierto tiempo pasamos a voz
-            if (f.p > vad_data->p1 + vad_data->alpha2)
-            {
-                vad_data->state = ST_VOICE;
-            }else{
-                vad_data->state = ST_SILENCE;              
-            }
-        }   
+            vad_data->state = ST_MAYBE_VOICE;
+            //if (f.p > vad_data->p1 + vad_data->alpha2 && estamos x tiempo en este estado)
+            //{
+                //vad_data->state = ST_VOICE;
+            //}
+        }else
+        {
+            vad_data->state = ST_SILENCE;
+        }
+          
     break;
 
   case ST_VOICE:
