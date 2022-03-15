@@ -100,19 +100,17 @@ int main(int argc, char *argv[]) {
         /* DONE: print only SILENCE and VOICE labels */
         /* As it is, it prints UNDEF segments but is should be merge to the proper
          * value */
+        // Si hay cambio de estado y esta definido
         if (state != last_state && state != ST_UNDEF) {
             
-            // Mirar que se llegue a un mínimo de tiempo antes de decidir
-            time_since_change =  (t - last_t) * frame_duration;
-            if (time_since_change >= MIN_SILENCE_TIME && state == ST_VOICE) {
+            // Mirar que se llegue al mínimo tiempo antes de decidir
+            time_since_change = (t - last_t) * frame_duration;
+            if ((last_state == ST_VOICE && time_since_change >= MIN_VOICE_TIME) ||
+                (last_state == ST_SILENCE && time_since_change >= MIN_SILENCE_TIME)) {
+
                 fprintf(vadfile, "%.5f\t%.5f\t%s\n", last_t * frame_duration,
                         t * frame_duration, state2str(last_state));
-                        
-                last_t = t;
-            } else if (time_since_change >= MIN_VOICE_TIME && state == ST_SILENCE) {
-                fprintf(vadfile, "%.5f\t%.5f\t%s\n", last_t * frame_duration,
-                        t * frame_duration, state2str(last_state));
-                        
+
                 last_t = t;
             }
 
