@@ -21,6 +21,8 @@ typedef struct {
     char *alpha1;
     char *alpha2;
     char *input_wav;
+    char *min_silence;
+    char *min_voice;
     char *output_vad;
     char *output_wav;
     /* special */
@@ -37,13 +39,15 @@ const char help_message[] =
 "   vad --version\n"
 "\n"
 "Options:\n"
-"   -i FILE, --input-wav=FILE   WAVE file for voice activity detection\n"
-"   -o FILE, --output-vad=FILE  Label file with the result of VAD\n"
-"   -w FILE, --output-wav=FILE  WAVE file with silences cleared\n"
-"   -1 FLOAT, --alpha1=FLOAT    Umbral voz -> silencio [default: 1.1667]\n"
-"   -2 FLOAT, --alpha2=FLOAT    Umbral silencio -> voz [default: 10.7222]\n"
-"   -3 INT, --TV=INT            tiempo para entrar de Maybe Voice a voice [default: 5]\n"
-"   -4 INT, --TS=INT           tiempo para entrar de Maybe Silence a Silence [default: 5]\n"
+"   -i FILE, --input-wav=FILE    WAVE file for voice activity detection\n"
+"   -o FILE, --output-vad=FILE   Label file with the result of VAD\n"
+"   -w FILE, --output-wav=FILE   WAVE file with silences cleared\n"
+"   -1 FLOAT, --alpha1=FLOAT     Umbral voz -> silencio [default: 1.1667]\n"
+"   -2 FLOAT, --alpha2=FLOAT     Umbral silencio -> voz [default: 10.7222]\n"
+"   -3 INT, --TV=INT             tiempo para entrar de Maybe Voice a voice [default: 5]\n"
+"   -4 INT, --TS=INT             tiempo para entrar de Maybe Silence a Silence [default: 5]\n"
+"   --min-silence=INT            tiempo minimo para ser considerado silencio en MS [default: 15]\n"
+"   --min-voice=INT              tiempo minimo para ser considerado voz en MS [default: 5]\n"
 "   -v, --verbose  Show debug information\n"
 "   -h, --help     Show this screen\n"
 "   --version      Show the version of the project\n"
@@ -293,6 +297,12 @@ int elems_to_args(Elements *elements, DocoptArgs *args, bool help,
         } else if (!strcmp(option->olong, "--input-wav")) {
             if (option->argument)
                 args->input_wav = option->argument;
+        } else if (!strcmp(option->olong, "--min-silence")) {
+            if (option->argument)
+                args->min_silence = option->argument;
+        } else if (!strcmp(option->olong, "--min-voice")) {
+            if (option->argument)
+                args->min_voice = option->argument;
         } else if (!strcmp(option->olong, "--output-vad")) {
             if (option->argument)
                 args->output_vad = option->argument;
@@ -320,7 +330,7 @@ int elems_to_args(Elements *elements, DocoptArgs *args, bool help,
 DocoptArgs docopt(int argc, char *argv[], bool help, const char *version) {
     DocoptArgs args = {
         0, 0, 0, (char*) "5", (char*) "5", (char*) "1.1667", (char*) "10.7222",
-        NULL, NULL, NULL,
+        NULL, (char*) "15", (char*) "5", NULL, NULL,
         usage_pattern, help_message
     };
     Tokens ts;
@@ -337,10 +347,12 @@ DocoptArgs docopt(int argc, char *argv[], bool help, const char *version) {
         {"-1", "--alpha1", 1, 0, NULL},
         {"-2", "--alpha2", 1, 0, NULL},
         {"-i", "--input-wav", 1, 0, NULL},
+        {NULL, "--min-silence", 1, 0, NULL},
+        {NULL, "--min-voice", 1, 0, NULL},
         {"-o", "--output-vad", 1, 0, NULL},
         {"-w", "--output-wav", 1, 0, NULL}
     };
-    Elements elements = {0, 0, 10, commands, arguments, options};
+    Elements elements = {0, 0, 12, commands, arguments, options};
 
     ts = tokens_new(argc, argv);
     if (parse_args(&ts, &elements))

@@ -8,8 +8,6 @@
 
 #define DEBUG_VAD 0x1
 
-const float MIN_SILENCE_TIME = 0.15f; /* in seconds */
-const float MIN_VOICE_TIME = 0.05f;   /* in seconds */
 
 int main(int argc, char *argv[]) {
     int verbose = 0; /* To show internal state of vad: verbose = DEBUG_VAD; */
@@ -30,17 +28,20 @@ int main(int argc, char *argv[]) {
     char *input_wav, *output_vad, *output_wav;
     float alpha1, alpha2;
     int TV, TS; // Tiempos de Maybe Silence/Voice a Silence/Voice
+    float min_silence_time, min_voice_time;
 
     DocoptArgs args = docopt(argc, argv, /* help */ 1, /* version */ "2.0");
 
-    verbose    = args.verbose ? DEBUG_VAD : 0;
-    input_wav  = args.input_wav;
-    output_vad = args.output_vad;
-    output_wav = args.output_wav;
-    alpha1     = atof(args.alpha1);
-    alpha2     = atof(args.alpha2);
-    TV         = atoi(args.TV);
-    TS         = atoi(args.TS);
+    verbose             = args.verbose ? DEBUG_VAD : 0;
+    input_wav           = args.input_wav;
+    output_vad          = args.output_vad;
+    output_wav          = args.output_wav;
+    alpha1              = atof(args.alpha1);
+    alpha2              = atof(args.alpha2);
+    TV                  = atoi(args.TV);
+    TS                  = atoi(args.TS);
+    min_silence_time    = atoi(args.min_silence) / 1000;
+    min_voice_time      = atoi(args.min_voice) / 1000;
 
     if (input_wav == 0 || output_vad == 0) {
         fprintf(stderr, "%s\n", args.usage_pattern);
@@ -104,8 +105,8 @@ int main(int argc, char *argv[]) {
             
             // Mirar que se llegue al mínimo tiempo antes de decidir
             time_since_change = (t - last_t) * frame_duration;
-            if ((last_state == ST_VOICE && time_since_change >= MIN_VOICE_TIME) ||
-                (last_state == ST_SILENCE && time_since_change >= MIN_SILENCE_TIME)) {
+            if ((last_state == ST_VOICE && time_since_change >= min_voice_time) ||
+                (last_state == ST_SILENCE && time_since_change >= min_silence_time)) {
 
                 fprintf(vadfile, "%.5f\t%.5f\t%s\n", last_t * frame_duration,
                         t * frame_duration, state2str(last_state));
