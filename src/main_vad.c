@@ -8,70 +8,69 @@
 
 #define DEBUG_VAD 0x1
 
-const float MIN_SILENCE_TIME = 0.15f;    /* in seconds */
-const float MIN_VOICE_TIME = 0.05f;     /* in seconds */
+const float MIN_SILENCE_TIME = 0.15f; /* in seconds */
+const float MIN_VOICE_TIME = 0.05f;   /* in seconds */
 
 int main(int argc, char *argv[]) {
-  int verbose = 0; /* To show internal state of vad: verbose = DEBUG_VAD; */
+    int verbose = 0; /* To show internal state of vad: verbose = DEBUG_VAD; */
 
-  SNDFILE *sndfile_in, *sndfile_out = 0;
-  SF_INFO sf_info;
-  FILE *vadfile;
-  int n_read = 0, i;
+    SNDFILE *sndfile_in, *sndfile_out = 0;
+    SF_INFO sf_info;
+    FILE *vadfile;
+    int n_read = 0, i;
 
-  VAD_DATA *vad_data;
-  VAD_STATE state, last_state;
+    VAD_DATA *vad_data;
+    VAD_STATE state, last_state;
 
-  float *buffer, *buffer_zeros;
-  int frame_size;           /* in samples */
-  float frame_duration;     /* in seconds */
-  float time_since_change;  /* in seconds */
-  unsigned int t, last_t;   /* in frames */
+    float *buffer, *buffer_zeros;
+    float frame_duration, time_since_change; /* in seconds */
+    int frame_size;                          /* in samples */
+    unsigned int t, last_t;                  /* in frames */
 
-  char	*input_wav, *output_vad, *output_wav;
-  float alpha1, alpha2;
-  int TV,TS;  //Tiempos de Maybe Silence/Voice a Silence/Voice
+    char *input_wav, *output_vad, *output_wav;
+    float alpha1, alpha2;
+    int TV, TS; // Tiempos de Maybe Silence/Voice a Silence/Voice
 
-  DocoptArgs args = docopt(argc, argv, /* help */ 1, /* version */ "2.0");
+    DocoptArgs args = docopt(argc, argv, /* help */ 1, /* version */ "2.0");
 
-  verbose    = args.verbose ? DEBUG_VAD : 0;
-  input_wav  = args.input_wav;
-  output_vad = args.output_vad;
-  output_wav = args.output_wav;
-  alpha1 = atof(args.alpha1);
-  alpha2 = atof(args.alpha2);
-  TV = atoi(args.TV);
-  TS = atoi(args.TS);
+    verbose    = args.verbose ? DEBUG_VAD : 0;
+    input_wav  = args.input_wav;
+    output_vad = args.output_vad;
+    output_wav = args.output_wav;
+    alpha1     = atof(args.alpha1);
+    alpha2     = atof(args.alpha2);
+    TV         = atoi(args.TV);
+    TS         = atoi(args.TS);
 
-  if (input_wav == 0 || output_vad == 0) {
-    fprintf(stderr, "%s\n", args.usage_pattern);
-    return -1;
-  }
-
-  /* Open input sound file */
-  if ((sndfile_in = sf_open(input_wav, SFM_READ, &sf_info)) == 0) {
-    fprintf(stderr, "Error opening input file %s (%s)\n", input_wav, strerror(errno));
-    return -1;
-  }
-
-  if (sf_info.channels != 1) {
-    fprintf(stderr, "Error: the input file has to be mono: %s\n", input_wav);
-    return -2;
-  }
-
-  /* Open vad file */
-  if ((vadfile = fopen(output_vad, "wt")) == 0) {
-    fprintf(stderr, "Error opening output vad file %s (%s)\n", output_vad, strerror(errno));
-    return -1;
-  }
-
-  /* Open output sound file, with same format, channels, etc. than input */
-  if (output_wav) {
-    if ((sndfile_out = sf_open(output_wav, SFM_WRITE, &sf_info)) == 0) {
-      fprintf(stderr, "Error opening output wav file %s (%s)\n", output_wav, strerror(errno));
-      return -1;
+    if (input_wav == 0 || output_vad == 0) {
+        fprintf(stderr, "%s\n", args.usage_pattern);
+        return -1;
     }
-  }
+
+    /* Open input sound file */
+    if ((sndfile_in = sf_open(input_wav, SFM_READ, &sf_info)) == 0) {
+        fprintf(stderr, "Error opening input file %s (%s)\n", input_wav, strerror(errno));
+        return -1;
+    }
+
+    if (sf_info.channels != 1) {
+        fprintf(stderr, "Error: the input file has to be mono: %s\n", input_wav);
+        return -2;
+    }
+
+    /* Open vad file */
+    if ((vadfile = fopen(output_vad, "wt")) == 0) {
+        fprintf(stderr, "Error opening output vad file %s (%s)\n", output_vad, strerror(errno));
+        return -1;
+    }
+
+    /* Open output sound file, with same format, channels, etc. than input */
+    if (output_wav) {
+        if ((sndfile_out = sf_open(output_wav, SFM_WRITE, &sf_info)) == 0) {
+            fprintf(stderr, "Error opening output wav file %s (%s)\n", output_wav, strerror(errno));
+            return -1;
+        }
+    }
 
     vad_data = vad_open(sf_info.samplerate, alpha1, alpha2);
     /* Allocate memory for buffers */
@@ -80,7 +79,7 @@ int main(int argc, char *argv[]) {
     buffer_zeros = (float *) malloc(frame_size * sizeof(float));
     for (i=0; i< frame_size; ++i) buffer_zeros[i] = 0.0F;
 
-    frame_duration = (float) frame_size/ (float) sf_info.samplerate;
+    frame_duration = (float) frame_size / (float) sf_info.samplerate;
     last_state = ST_UNDEF;
 
     /* For each frame ... */
@@ -130,11 +129,11 @@ int main(int argc, char *argv[]) {
                 state2str(last_state));
     }
 
-  /* clean up: free memory, close open files */
-  free(buffer);
-  free(buffer_zeros);
-  sf_close(sndfile_in);
-  fclose(vadfile);
-  if (sndfile_out) sf_close(sndfile_out);
-  return 0;
+    /* clean up: free memory, close open files */
+    free(buffer);
+    free(buffer_zeros);
+    sf_close(sndfile_in);
+    fclose(vadfile);
+    if (sndfile_out) sf_close(sndfile_out);
+    return 0;
 }
