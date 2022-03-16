@@ -46,8 +46,8 @@ const char help_message[] =
 "   -2 FLOAT, --alpha2=FLOAT     Umbral silencio -> voz [default: 10.7222]\n"
 "   -3 INT, --TV=INT             tiempo para entrar de Maybe Voice a voice [default: 5]\n"
 "   -4 INT, --TS=INT             tiempo para entrar de Maybe Silence a Silence [default: 5]\n"
-"   --min-silence=INT            tiempo minimo para ser considerado silencio en MS [default: 15]\n"
-"   --min-voice=INT              tiempo minimo para ser considerado voz en MS [default: 5]\n"
+"   --min-silence=INT            tiempo minimo para ser considerado silencio en MS [default: 150]\n"
+"   --min-voice=INT              tiempo minimo para ser considerado voz en MS [default: 50]\n"
 "   -v, --verbose  Show debug information\n"
 "   -h, --help     Show this screen\n"
 "   --version      Show the version of the project\n"
@@ -330,7 +330,7 @@ int elems_to_args(Elements *elements, DocoptArgs *args, bool help,
 DocoptArgs docopt(int argc, char *argv[], bool help, const char *version) {
     DocoptArgs args = {
         0, 0, 0, (char*) "5", (char*) "5", (char*) "1.1667", (char*) "10.7222",
-        NULL, (char*) "15", (char*) "5", NULL, NULL,
+        NULL, (char*) "150", (char*) "50", NULL, NULL,
         usage_pattern, help_message
     };
     Tokens ts;
