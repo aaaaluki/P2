@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
     float *buffer, *buffer_zeros;
     float frame_duration, time_since_change; /* in seconds */
     int frame_size;                          /* in samples */
-    unsigned int t, last_t;                  /* in frames */
+    unsigned int t, last_t, frame_count;     /* in frames */
 
     char *input_wav, *output_vad, *output_wav;
     float alpha1, alpha2;
@@ -40,8 +40,8 @@ int main(int argc, char *argv[]) {
     alpha2              = atof(args.alpha2);
     TV                  = atoi(args.TV);
     TS                  = atoi(args.TS);
-    min_silence_time    = atoi(args.min_silence) / 1000;
-    min_voice_time      = atoi(args.min_voice) / 1000;
+    min_silence_time    = (float)atoi(args.min_silence) / 1000;
+    min_voice_time      = (float)atoi(args.min_voice) / 1000;
 
     if (input_wav == 0 || output_vad == 0) {
         fprintf(stderr, "%s\n", args.usage_pattern);
@@ -82,6 +82,7 @@ int main(int argc, char *argv[]) {
 
     frame_duration = (float) frame_size / (float) sf_info.samplerate;
     last_state = ST_UNDEF;
+    frame_count = 0;
 
     /* For each frame ... */
     for (t = last_t = 0;; t++) {
@@ -90,7 +91,8 @@ int main(int argc, char *argv[]) {
             break;
 
         if (sndfile_out != 0) {
-            /* TODO: copy all the samples into sndfile_out */
+            sf_write_float(sndfile_out, buffer, frame_size);
+            frame_count++;
         }
 
         state = vad(vad_data, buffer);
@@ -112,13 +114,21 @@ int main(int argc, char *argv[]) {
                         t * frame_duration, state2str(last_state));
 
                 last_t = t;
+
+                if (last_state == ST_VOICE) {
+                    frame_count = 0;
+                }
             }
 
             last_state = state;
         }
 
-        if (sndfile_out != 0) {
-            /* TODO: go back and write zeros in silence segments */
+        if (sndfile_out != 0 && last_t == t) {
+            sf_seek(sndfile_out, -frame_size*frame_count, SEEK_CUR);
+
+            // Write zeros
+            for (int i = 0; i < frame_count; i++)
+                sf_write_float(sndfile_out, buffer_zeros, frame_size);
         }
     }
 
@@ -128,6 +138,14 @@ int main(int argc, char *argv[]) {
         fprintf(vadfile, "%.5f\t%.5f\t%s\n", last_t * frame_duration,
                 t * frame_duration + n_read / (float) sf_info.samplerate,
                 state2str(last_state));
+    }
+
+    if (sndfile_out != 0 && last_state == ST_SILENCE) {
+        sf_seek(sndfile_out, -frame_size*frame_count, SEEK_CUR);
+
+        // Write zeros
+        for (int i = 0; i < frame_count; i++)
+            sf_write_float(sndfile_out, buffer_zeros, frame_size);
     }
 
     /* clean up: free memory, close open files */
