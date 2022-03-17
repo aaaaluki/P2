@@ -1,17 +1,10 @@
 #!/bin/bash
 
-file="pav_4151"
-wavFile=$file".wav"
-vadFile=$file".vad"
-labFile=$file".lab"
-
-for alpha1 in $(seq 0.5 0.5 1.5)
+for alpha1 in $(seq 0 1 10)
 do 
-    for alpha2 in $(seq 10 0.5 12)
+    for alpha2 in $(seq 0 2 20)
     do
         echo -n "$alpha1, $alpha2 "
-        # bin/vad -1 $alpha1 -2 $alpha2 -i $wavFile -o $vadFile
-        # scripts/vad_evaluation.pl $labFile | grep "==="
         scripts/run_vad.sh $alpha1 $alpha2 | tail -n 2 | head -n 1
     done
 done | sort -t : -k 2n | tail
