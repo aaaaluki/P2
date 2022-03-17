@@ -15,6 +15,7 @@ Options:
    -4 INT, --TS=INT             tiempo para entrar de Maybe Silence a Silence [default: 5]
    --min-silence=INT            tiempo minimo para ser considerado silencio en MS [default: 150]
    --min-voice=INT              tiempo minimo para ser considerado voz en MS [default: 50]
+   --n-init=INT                 Tramas a usar para calcular la media del umbral [default: 10]
    -v, --verbose  Show debug information
    -h, --help     Show this screen
    --version      Show the version of the project

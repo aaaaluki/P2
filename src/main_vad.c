@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
 
     char *input_wav, *output_vad, *output_wav;
     float alpha1, alpha2;
-    int TV, TS; // Tiempos de Maybe Silence/Voice a Silence/Voice
+    int TV, TS, n_init; // Tiempos de Maybe Silence/Voice a Silence/Voice
     float min_silence_time, min_voice_time;
 
     DocoptArgs args = docopt(argc, argv, /* help */ 1, /* version */ "2.0");
@@ -42,6 +42,7 @@ int main(int argc, char *argv[]) {
     TS                  = atoi(args.TS);
     min_silence_time    = (float)atoi(args.min_silence) / 1000;
     min_voice_time      = (float)atoi(args.min_voice) / 1000;
+    n_init              = atoi(args.n_init);
 
     if (input_wav == 0 || output_vad == 0) {
         fprintf(stderr, "%s\n", args.usage_pattern);
@@ -73,7 +74,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    vad_data = vad_open(sf_info.samplerate, alpha1, alpha2);
+    vad_data = vad_open(sf_info.samplerate, alpha1, alpha2, n_init);
     /* Allocate memory for buffers */
     frame_size   = vad_frame_size(vad_data);
     buffer       = (float *) malloc(frame_size * sizeof(float));
