@@ -7,6 +7,7 @@
 #include "vad.h"
 
 const float FRAME_TIME = 10.0F; /* in ms. */
+const unsigned int N_INIT = 9;
 
 /* 
  * As the output state is only ST_VOICE, ST_SILENCE, or ST_UNDEF,
@@ -56,6 +57,8 @@ VAD_DATA * vad_open(float rate, float alpha1, float alpha2) {
   vad_data->frame_length = rate * FRAME_TIME * 1e-3;
   vad_data->alpha1 = alpha1;
   vad_data->alpha2 = alpha2;
+  vad_data->n_init = N_INIT;
+  vad_data->frame_counter = 0;
   return vad_data;
 }
 
@@ -85,81 +88,80 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
    * program finite state automaton, define conditions, etc.
    */
 
-  Features f = compute_features(x, vad_data->frame_length);
-  vad_data->last_feature = f.p; /* save feature, in case you want to show */
-  int esperaV, esperaS; 
+    Features f = compute_features(x, vad_data->frame_length);
+    vad_data->last_feature = f.p; /* save feature, in case you want to show */
+    int esperaV, esperaS; 
 
-  switch (vad_data->state) {
-  case ST_INIT:
-    vad_data->state = ST_SILENCE;
-    vad_data->p1 = f.p;   //pillamos valor referencia
-    esperaS=0;    //no se si hace falta inicializarlos aquí
-    esperaV=0;
-    break;
+    switch (vad_data->state) {
+        case ST_INIT:
+            // Hacer la media de las primeras n_init tramas
+            if (vad_data->frame_counter < vad_data->n_init) {
+                vad_data->p1 += f.p / vad_data->n_init;
+                vad_data->frame_counter++;
+            } else {
+                vad_data->state = ST_SILENCE;
+                esperaS = 0;    //no se si hace falta inicializarlos aquí
+                esperaV = 0;
+            }
+            break;
 
-  case ST_SILENCE:
+        case ST_SILENCE:
+            if (f.p < vad_data->p1 + vad_data->alpha1) {
+                vad_data->state = ST_SILENCE;
+            } else {
+                vad_data->state = ST_MAYBE_VOICE;
+                esperaV=0;
+            }
+            break;
 
-    if (f.p < vad_data->p1 + vad_data->alpha1)
-    {
-        vad_data->state = ST_SILENCE;
-    }else{
-        vad_data->state = ST_MAYBE_VOICE;
-        esperaV=0;
-    }
-    break;
+        case ST_MAYBE_SILENCE:
+            if (f.p < vad_data->p1 + vad_data->alpha1 && f.p < vad_data->p1 + vad_data->alpha2) {
+                //cambiar 5 por args.TS
+                if (esperaS == 5) {
+                    vad_data->state = ST_SILENCE; 
+                } else {
+                    vad_data->state = ST_MAYBE_SILENCE;
+                    esperaS++;
+                }
+            } else {
+                vad_data->state = ST_VOICE;
+            }
+            break;
 
-  case ST_MAYBE_SILENCE:
-      if (f.p < vad_data->p1 + vad_data->alpha1 && f.p < vad_data->p1 + vad_data->alpha2){
-          if (esperaS == 5) //cambiar 5 por args.TS
-          {
-              vad_data->state = ST_SILENCE; 
-          }else
-          {
-              vad_data->state = ST_MAYBE_SILENCE;
-              esperaS++;
-          }
-      }else{
-            vad_data->state = ST_VOICE;
-      }
-    break;
+        case ST_MAYBE_VOICE:
+                if (f.p > vad_data->p1 + vad_data->alpha1) {
+                    vad_data->state = ST_MAYBE_VOICE;
+                    if (f.p > vad_data->p1 + vad_data->alpha2 && esperaV == 5) {
+                        vad_data->state = ST_VOICE;
+                    } else {
+                        vad_data->state = ST_MAYBE_VOICE;
+                        esperaV++;
+                    }
+                } else {
+                    vad_data->state = ST_SILENCE;
+                }
+                
+            break;
 
-  case ST_MAYBE_VOICE:
-        if (f.p > vad_data->p1 + vad_data->alpha1)
-        {
-            vad_data->state = ST_MAYBE_VOICE;
-            if (f.p > vad_data->p1 + vad_data->alpha2 && esperaV == 5)
+        case ST_VOICE: 
+            if (f.p > vad_data->p1 + vad_data->alpha1 && f.p > vad_data->p1 + vad_data->alpha2) 
             {
                 vad_data->state = ST_VOICE;
             }else{
-                vad_data->state = ST_MAYBE_VOICE;
-                esperaV++;
-            }
-        }else
-        {
-            vad_data->state = ST_SILENCE;
-        }
-          
-    break;
+                vad_data->state = ST_MAYBE_SILENCE;
+                esperaS=0;
+            } 
+            break;
 
-  case ST_VOICE: 
-    if (f.p > vad_data->p1 + vad_data->alpha1 && f.p > vad_data->p1 + vad_data->alpha2) 
-    {
-        vad_data->state = ST_VOICE;
-    }else{
-        vad_data->state = ST_MAYBE_SILENCE;
-        esperaS=0;
-    } 
-    break;
+        case ST_UNDEF:
+            break;
+    }
 
-  case ST_UNDEF:
-    break;
-  }
-
-  if (vad_data->state == ST_SILENCE ||
-      vad_data->state == ST_VOICE)
-    return vad_data->state;
-  else
-    return ST_UNDEF;
+    if (vad_data->state == ST_SILENCE ||
+        vad_data->state == ST_VOICE)
+        return vad_data->state;
+    else
+        return ST_UNDEF;
 }
 
 void vad_show_state(const VAD_DATA *vad_data, FILE *out) {

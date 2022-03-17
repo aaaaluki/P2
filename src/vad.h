@@ -19,6 +19,8 @@ typedef struct {
   float p1;
   float alpha1;
   float alpha2;
+  unsigned int n_init;
+  unsigned int frame_counter;
 } VAD_DATA;
 
 /* Call this function before using VAD: 
