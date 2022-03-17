@@ -51,8 +51,8 @@ def plot(alpha1: np.ndarray, alpha2: np.ndarray) -> np.ndarray:
     file.write('{},{},{}\n'.format(na1, na2, na1*na2))
 
     # Vars for finding max
-    alpha1_max = 0
-    alpha2_max = 0
+    alpha1_max_idx = 0
+    alpha2_max_idx = 0
     val_max = 0
 
     Z = np.zeros((na2, na1))
@@ -64,8 +64,8 @@ def plot(alpha1: np.ndarray, alpha2: np.ndarray) -> np.ndarray:
 
             if result['total'] > val_max:
                 val_max = result['total']
-                alpha1_max = alpha1[i]
-                alpha2_max = alpha2[j]
+                alpha1_max_idx = i
+                alpha2_max_idx = j
 
             Z[j][i] = result['total']
 
@@ -76,8 +76,11 @@ def plot(alpha1: np.ndarray, alpha2: np.ndarray) -> np.ndarray:
     file.close()
 
     # Show maximum
-    print('Max value: {} -> alpha1: {}, alpha2: {}'.format(val_max, alpha1_max, alpha2_max))
+    print('Max value: {} -> alpha1: {}, alpha2: {}'.format(val_max, alpha1[alpha1_max_idx], alpha2[alpha2_max_idx]))
+    print('Alpha1: {} - {}'.format(alpha1[alpha1_max_idx - 1], alpha1[alpha1_max_idx + 1]))
+    print('Alpha2: {} - {}'.format(alpha2[alpha2_max_idx - 1], alpha2[alpha2_max_idx + 1]))
 
+    return
     # Plot the surface.
     X, Y = np.meshgrid(alpha1, alpha2)
 
@@ -125,8 +128,8 @@ def main(alpha1, alpha2) -> None:
 
 
 if __name__ == '__main__':
-    alpha1 = np.linspace(4, 5, num=10)
-    alpha2 = np.linspace(10, 11, num=10)
+    alpha1 = np.linspace(3.78, 4.27, num=10)
+    alpha2 = np.linspace(8.1, 9.1, num=10)
 
     if PLOT:
         plot(alpha1, alpha2)
