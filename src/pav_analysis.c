@@ -13,9 +13,12 @@
 float compute_power(const float *x, unsigned int N) {
     // Valor para que la pot. mínima sea -120 dB (consejo para la P2)
     float power = 1.e-12;
+    float dB[N];
 
     for (int i = 0; i < N; i++) {
-        power += x[i] * x[i];
+        //power += x[i] * x[i];       //calculamos la potencia
+        dB[i] = 10*log10f( x[i] * x[i] );   //calculamos la potencia en dB de cada trama
+        power += powf(10,dB[i]/10);         //La potencia media es la suma de 10^Pdb/10 de las N tramas iniciales
     }
 
     return 10*log10f(power / N);
