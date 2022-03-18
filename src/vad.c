@@ -7,6 +7,7 @@
 #include "vad.h"
 
 const float FRAME_TIME = 10.0F; /* in ms. */
+int esperaV=0, esperaS=0; 
 
 /* 
  * As the output state is only ST_VOICE, ST_SILENCE, or ST_UNDEF,
@@ -49,7 +50,7 @@ Features compute_features(const float *x, int N) {
  * TODO: Init the values of vad_data
  */
 
-VAD_DATA * vad_open(float rate, float alpha1, float alpha2, int n_init) {
+VAD_DATA * vad_open(float rate, float alpha1, float alpha2, int n_init, float TV, float TS) {
   VAD_DATA *vad_data = malloc(sizeof(VAD_DATA));
   vad_data->state = ST_INIT;
   vad_data->sampling_rate = rate;
@@ -58,6 +59,8 @@ VAD_DATA * vad_open(float rate, float alpha1, float alpha2, int n_init) {
   vad_data->alpha2 = alpha2;
   vad_data->n_init = n_init;
   vad_data->frame_counter = 0;
+  vad_data->TS = TS;
+  vad_data->TV = TV;
   return vad_data;
 }
 
@@ -89,7 +92,6 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
 
     Features f = compute_features(x, vad_data->frame_length);
     vad_data->last_feature = f.p; /* save feature, in case you want to show */
-    int esperaV, esperaS; 
 
     switch (vad_data->state) {
         case ST_INIT:
@@ -100,7 +102,6 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
             } else {
                 vad_data->state = ST_SILENCE;
                 esperaS = 0;    //no se si hace falta inicializarlos aquí
-                esperaV = 0;
             }
             break;
 
@@ -115,8 +116,7 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
 
         case ST_MAYBE_SILENCE:
             if (f.p < vad_data->p1 + vad_data->alpha1 && f.p < vad_data->p1 + vad_data->alpha2) {
-                //cambiar 5 por args.TS
-                if (esperaS == 5) {
+                if (esperaS == vad_data->TS) {  //si esperamos lo suficiente pasamos a silencio
                     vad_data->state = ST_SILENCE; 
                 } else {
                     vad_data->state = ST_MAYBE_SILENCE;
@@ -130,7 +130,7 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
         case ST_MAYBE_VOICE:
                 if (f.p > vad_data->p1 + vad_data->alpha1) {
                     vad_data->state = ST_MAYBE_VOICE;
-                    if (f.p > vad_data->p1 + vad_data->alpha2 && esperaV == 5) {
+                    if (f.p > vad_data->p1 + vad_data->alpha2 && esperaV == vad_data->TV) { //si esperamos suficiente pasamos a voz
                         vad_data->state = ST_VOICE;
                     } else {
                         vad_data->state = ST_MAYBE_VOICE;
