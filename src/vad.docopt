@@ -6,13 +6,13 @@ Usage:
    vad --version
 
 Options:
-   -i FILE, --input-wav=FILE    WAVE file for voice activity detection
-   -o FILE, --output-vad=FILE   Label file with the result of VAD
-   -w FILE, --output-wav=FILE   WAVE file with silences cleared
-   -1 FLOAT, --alpha1=FLOAT     Umbral voz -> silencio [default: 8.024]
-   -2 FLOAT, --alpha2=FLOAT     Umbral silencio -> voz [default: 7.929]
-   --min-voice=INT              Minimo de tramas para ser considerado voz [default: 1]
-   --min-silence=INT            Minimo de tramas para ser considerado silencio [default: 10]
+   -i FILE, --input-wav=FILE   WAVE file for voice activity detection
+   -o FILE, --output-vad=FILE  Label file with the result of VAD
+   -w FILE, --output-wav=FILE  WAVE file with silences cleared
+   -1 FLOAT, --alpha1=FLOAT    Umbral voz -> silencio [default: 1.8464]
+   -2 FLOAT, --alpha2=FLOAT    Umbral silencio -> voz [default: 9.5840]
+   --min-voice=INT              Minimo de tramas para ser considerado voz [default: 3]
+   --min-silence=INT            Minimo de tramas para ser considerado silencio [default: 18]
    --n-init=INT                 Tramas a usar para calcular la media del umbral [default: 9]
    -v, --verbose  Show debug information
    -h, --help     Show this screen

@@ -15,7 +15,7 @@ float compute_power(const float *x, unsigned int N) {
     float power = 1.e-12;
 
     for (int i = 0; i < N; i++) {
-        power += x[i] * x[i];       //calculamos la potencia   
+        power += x[i] * x[i];
     }
 
     return 10*log10f(power / N);

@@ -38,13 +38,13 @@ const char help_message[] =
 "   vad --version\n"
 "\n"
 "Options:\n"
-"   -i FILE, --input-wav=FILE    WAVE file for voice activity detection\n"
-"   -o FILE, --output-vad=FILE   Label file with the result of VAD\n"
-"   -w FILE, --output-wav=FILE   WAVE file with silences cleared\n"
-"   -1 FLOAT, --alpha1=FLOAT     Umbral voz -> silencio [default: 8.024]\n"
-"   -2 FLOAT, --alpha2=FLOAT     Umbral silencio -> voz [default: 7.929]\n"
-"   --min-voice=INT              Minimo de tramas para ser considerado voz [default: 1]\n"
-"   --min-silence=INT            Minimo de tramas para ser considerado silencio [default: 10]\n"
+"   -i FILE, --input-wav=FILE   WAVE file for voice activity detection\n"
+"   -o FILE, --output-vad=FILE  Label file with the result of VAD\n"
+"   -w FILE, --output-wav=FILE  WAVE file with silences cleared\n"
+"   -1 FLOAT, --alpha1=FLOAT    Umbral voz -> silencio [default: 1.8464]\n"
+"   -2 FLOAT, --alpha2=FLOAT    Umbral silencio -> voz [default: 9.5840]\n"
+"   --min-voice=INT              Minimo de tramas para ser considerado voz [default: 3]\n"
+"   --min-silence=INT            Minimo de tramas para ser considerado silencio [default: 18]\n"
 "   --n-init=INT                 Tramas a usar para calcular la media del umbral [default: 9]\n"
 "   -v, --verbose  Show debug information\n"
 "   -h, --help     Show this screen\n"
@@ -324,8 +324,8 @@ int elems_to_args(Elements *elements, DocoptArgs *args, bool help,
 
 DocoptArgs docopt(int argc, char *argv[], bool help, const char *version) {
     DocoptArgs args = {
-        0, 0, 0, (char*) "8.024", (char*) "7.929", NULL, (char*) "10", (char*)
-        "1", (char*) "9", NULL, NULL,
+        0, 0, 0, (char*) "1.8464", (char*) "9.5840", NULL, (char*) "18", (char*)
+        "3", (char*) "9", NULL, NULL,
         usage_pattern, help_message
     };
     Tokens ts;

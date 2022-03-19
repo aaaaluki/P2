@@ -8,7 +8,6 @@
 
 #define DEBUG_VAD 0x1
 
-
 int main(int argc, char *argv[]) {
     int verbose = 0; /* To show internal state of vad: verbose = DEBUG_VAD; */
 
@@ -21,22 +20,22 @@ int main(int argc, char *argv[]) {
     VAD_STATE state, last_state;
 
     float *buffer, *buffer_zeros;
-    float frame_duration;                /* in seconds */
-    int frame_size;                      /* in samples */
-    unsigned int t, last_t, frame_count; /* in frames */
+    float frame_duration, time_since_change; /* in seconds */
+    int frame_size;                          /* in samples */
+    unsigned int t, last_t;                  /* in frames */
+    int min_voice, min_silence, n_init;
 
     char *input_wav, *output_vad, *output_wav;
     float alpha1, alpha2;
-    int min_voice, min_silence, n_init;
 
     DocoptArgs args = docopt(argc, argv, /* help */ 1, /* version */ "2.0");
 
-    verbose     = args.verbose ? DEBUG_VAD : 0;
-    input_wav   = args.input_wav;
-    output_vad  = args.output_vad;
-    output_wav  = args.output_wav;
-    alpha1      = atof(args.alpha1);
-    alpha2      = atof(args.alpha2);
+    verbose    = args.verbose ? DEBUG_VAD : 0;
+    input_wav  = args.input_wav;
+    output_vad = args.output_vad;
+    output_wav = args.output_wav;
+    alpha1     = atof(args.alpha1);
+    alpha2     = atof(args.alpha2);
     min_voice   = atoi(args.min_voice);
     min_silence = atoi(args.min_silence);
     n_init      = atoi(args.n_init);
@@ -71,8 +70,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    vad_data = vad_open(sf_info.samplerate, alpha1, alpha2, n_init, min_voice, min_silence);
-
+    vad_data = vad_open(sf_info.samplerate, alpha1, alpha2, n_init);
     /* Allocate memory for buffers */
     frame_size   = vad_frame_size(vad_data);
     buffer       = (float *) malloc(frame_size * sizeof(float));
@@ -80,8 +78,7 @@ int main(int argc, char *argv[]) {
     for (i=0; i< frame_size; ++i) buffer_zeros[i] = 0.0F;
 
     frame_duration = (float) frame_size / (float) sf_info.samplerate;
-    last_state = ST_SILENCE;    // Supongamos que empezamos con silencio
-    frame_count = 0;
+    last_state = ST_UNDEF;
 
     /* For each frame ... */
     for (t = last_t = 0;; t++) {
@@ -90,8 +87,7 @@ int main(int argc, char *argv[]) {
             break;
 
         if (sndfile_out != 0) {
-            sf_write_float(sndfile_out, buffer, frame_size);
-            frame_count++;
+            /* TODO: copy all the samples into sndfile_out */
         }
 
         state = vad(vad_data, buffer);
@@ -104,24 +100,22 @@ int main(int argc, char *argv[]) {
         // Si hay cambio de estado y esta definido
         if (state != last_state && state != ST_UNDEF) {
             
-            fprintf(vadfile, "%.5f\t%.5f\t%s\n", last_t * frame_duration,
-                    t * frame_duration, state2str(last_state));
+            // Mirar que se llegue al mínimo tiempo antes de decidir
+            time_since_change = (t - last_t);
+            if ((last_state == ST_VOICE && time_since_change >= min_voice) ||
+                (last_state == ST_SILENCE && time_since_change >= min_silence)) {
 
-            if (last_state == ST_VOICE) {
-                // Empezar a contar frames para silenciar
-                frame_count = 0;
+                fprintf(vadfile, "%.5f\t%.5f\t%s\n", last_t * frame_duration,
+                        t * frame_duration, state2str(last_state));
+
+                last_t = t;
             }
 
             last_state = state;
-            last_t = t;
         }
 
-        if (sndfile_out != 0 && last_t == t) {
-            sf_seek(sndfile_out, -frame_size*frame_count, SEEK_CUR);
-
-            // Write zeros
-            for (int i = 0; i < frame_count; i++)
-                sf_write_float(sndfile_out, buffer_zeros, frame_size);
+        if (sndfile_out != 0) {
+            /* TODO: go back and write zeros in silence segments */
         }
     }
 
@@ -131,14 +125,6 @@ int main(int argc, char *argv[]) {
         fprintf(vadfile, "%.5f\t%.5f\t%s\n", last_t * frame_duration,
                 t * frame_duration + n_read / (float) sf_info.samplerate,
                 state2str(last_state));
-    }
-
-    if (sndfile_out != 0 && last_state == ST_SILENCE) {
-        sf_seek(sndfile_out, -frame_size*frame_count, SEEK_CUR);
-
-        // Write zeros
-        for (int i = 0; i < frame_count; i++)
-            sf_write_float(sndfile_out, buffer_zeros, frame_size);
     }
 
     /* clean up: free memory, close open files */

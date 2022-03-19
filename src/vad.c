@@ -15,7 +15,7 @@ const float FRAME_TIME = 10.0F; /* in ms. */
  */
 
 const char *state_str[] = {
-  "UNDEF", "S", "V", "INIT", "MV", "MS"
+  "UNDEF", "S", "V", "INIT"
 };
 
 const char *state2str(VAD_STATE st) {
@@ -49,19 +49,15 @@ Features compute_features(const float *x, int N) {
  * TODO: Init the values of vad_data
  */
 
-VAD_DATA * vad_open(float rate, float alpha1, float alpha2, int n_init, int min_voice, int min_silence) {
+VAD_DATA * vad_open(float rate, float alpha1, float alpha2, int n_init) {
   VAD_DATA *vad_data = malloc(sizeof(VAD_DATA));
   vad_data->state = ST_INIT;
   vad_data->sampling_rate = rate;
   vad_data->frame_length = rate * FRAME_TIME * 1e-3;
   vad_data->alpha1 = alpha1;
   vad_data->alpha2 = alpha2;
-  vad_data->min_voice = min_voice;
-  vad_data->min_silence = min_silence;
-  vad_data->esperaMS = 0;
-  vad_data->esperaMV = 0;
-  vad_data->n_init = n_init;
   vad_data->frame_counter = 0;
+  vad_data->n_init = n_init;
   return vad_data;
 }
 
@@ -84,87 +80,51 @@ unsigned int vad_frame_size(VAD_DATA *vad_data) {
  * using a Finite State Automata
  */
 
-VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
+VAD_STATE vad(VAD_DATA *vad_data, float *x) {
 
   /* 
    * TODO: You can change this, using your own features,
    * program finite state automaton, define conditions, etc.
    */
 
-    Features f = compute_features(x, vad_data->frame_length);
-    vad_data->last_feature = f.p; /* save feature, in case you want to show */
+  Features f = compute_features(x, vad_data->frame_length);
+  vad_data->last_feature = f.p; /* save feature, in case you want to show */
 
-    switch (vad_data->state) {
-        case ST_INIT:
-            // Hacer la media de las primeras n_init tramas
-            if (vad_data->frame_counter < vad_data->n_init) {
-                vad_data->k0 += powf(10.0f, f.p / 10) / vad_data->n_init;
-                vad_data->frame_counter++;
-            } else {
-                vad_data->state = ST_SILENCE;
-                vad_data->k0 = 10*log10f(vad_data->k0);
-                vad_data->k1 = vad_data->k0 + vad_data->alpha1;
-                vad_data->k2 = vad_data->k0 + vad_data->alpha2;
-            }
-            break;
-
-        case ST_SILENCE:
-            if (f.p < vad_data->k1) {
-                vad_data->state = ST_SILENCE;
-            } else {
-                vad_data->esperaMV = 0;
-                vad_data->state = ST_MAYBE_VOICE;
-            }
-            break;
-
-        case ST_MAYBE_VOICE:
-                if (f.p > vad_data->k1) {
-                    if (vad_data->esperaMV >= vad_data->min_voice) {
-                        vad_data->state = ST_VOICE;
-                    } else {
-                        vad_data->state = ST_MAYBE_VOICE;
-                    }
-                } else {
-                    vad_data->state = ST_SILENCE;
-                }
-
-                vad_data->esperaMV++;
-            break;
-
-        case ST_VOICE: 
-            if (f.p > vad_data->k2) {
-                vad_data->state = ST_VOICE;
-            } else {
-                vad_data->state = ST_MAYBE_SILENCE;
-                vad_data->esperaMS = 0;
-            } 
-            break;
-
-        case ST_MAYBE_SILENCE:
-            if (f.p < vad_data->k2) {
-                if (vad_data->esperaMS >= vad_data->min_silence) {  //si esperamos lo suficiente pasamos a silencio
-                    vad_data->state = ST_SILENCE;
-                } else {
-                    vad_data->state = ST_MAYBE_SILENCE;
-                }
-            } else {
-                vad_data->state = ST_VOICE;
-            }
-            
-            vad_data->esperaMS++;
-            break;
-
-        case ST_UNDEF:
-            break;
+  switch (vad_data->state) {
+  case ST_INIT:
+    // Hacer la media de las primeras n_init tramas
+    if (vad_data->frame_counter < vad_data->n_init) {
+      vad_data->k0 += powf(10.0, f.p / 10) / vad_data->n_init;
+      vad_data->frame_counter++;
+    } else {
+      vad_data->state = ST_SILENCE;
+      vad_data->k0 = 10*log10f(vad_data->k0);
+      vad_data->k1 = vad_data->k0 + vad_data->alpha1;
+      vad_data->k2 = vad_data->k0 + vad_data->alpha2;
     }
+    break;
 
-    if (vad_data->state == ST_SILENCE ||
-        vad_data->state == ST_VOICE)
-        return vad_data->state;
-    else
-        return ST_UNDEF;
+  case ST_SILENCE:
+    if (f.p > vad_data->k0 + vad_data->alpha2)
+      vad_data->state = ST_VOICE;
+    break;
+
+  case ST_VOICE:
+    if (f.p < vad_data->k0 + vad_data->alpha1)
+      vad_data->state = ST_SILENCE;
+    break;
+
+  case ST_UNDEF:
+    break;
+  }
+
+  if (vad_data->state == ST_SILENCE ||
+      vad_data->state == ST_VOICE)
+    return vad_data->state;
+  else
+    return ST_UNDEF;
 }
 
 void vad_show_state(const VAD_DATA *vad_data, FILE *out) {
-  fprintf(out, "%s\t%f\n", state2str(vad_data->state), vad_data->last_feature);
+  fprintf(out, "%d\t%f\n", vad_data->state, vad_data->last_feature);
 }
