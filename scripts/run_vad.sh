@@ -3,13 +3,12 @@
 # Be sure that this file has execution permissions:
 # Use the nautilus explorer or chmod +x run_vad.sh
 
-if [[ $# -ge 2 ]];
-then
+if [[ $# -ge 2 ]]; then
     ALPHA1=$1
     ALPHA2=$2
+    DEFAULTS=0
 else
-    ALPHA1=1.1667
-    ALPHA2=10.7222
+    DEFAULTS=1
 fi
 
 # Write here the name and path of your program and database
@@ -27,7 +26,11 @@ for filewav in $DB/*/*wav; do
 
     filevad=${filewav/.wav/.vad}
 
-    $CMD -1 $ALPHA1 -2 $ALPHA2 -i $filewav -o $filevad || exit 1
+    if [[ $DEFAULTS -eq 1 ]]; then
+        $CMD -i $filewav -o $filevad || exit 1
+    else
+        $CMD -1 $ALPHA1 -2 $ALPHA2 -i $filewav -o $filevad || exit 1
+    fi
 
 # Alternatively, uncomment to create output wave files
 #    filewavOut=${filewav/.wav/.vad.wav}
