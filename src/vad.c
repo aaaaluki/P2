@@ -49,15 +49,15 @@ Features compute_features(const float *x, int N) {
  * TODO: Init the values of vad_data
  */
 
-VAD_DATA * vad_open(float rate, float alpha1, float alpha2, int n_init, float TV, float TS) {
+VAD_DATA * vad_open(float rate, float alpha1, float alpha2, int n_init, int min_voice, int min_silence) {
   VAD_DATA *vad_data = malloc(sizeof(VAD_DATA));
   vad_data->state = ST_INIT;
   vad_data->sampling_rate = rate;
   vad_data->frame_length = rate * FRAME_TIME * 1e-3;
   vad_data->alpha1 = alpha1;
   vad_data->alpha2 = alpha2;
-  vad_data->TV = TV;
-  vad_data->TS = TS;
+  vad_data->min_voice = min_voice;
+  vad_data->min_silence = min_silence;
   vad_data->esperaMS = 0;
   vad_data->esperaMV = 0;
   vad_data->n_init = n_init;
@@ -119,7 +119,7 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
 
         case ST_MAYBE_VOICE:
                 if (f.p > vad_data->k1) {
-                    if (vad_data->esperaMV >= vad_data->TV) {
+                    if (vad_data->esperaMV >= vad_data->min_voice) {
                         vad_data->state = ST_VOICE;
                     } else {
                         vad_data->state = ST_MAYBE_VOICE;
@@ -142,7 +142,7 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
 
         case ST_MAYBE_SILENCE:
             if (f.p < vad_data->k2) {
-                if (vad_data->esperaMS >= vad_data->TS) {  //si esperamos lo suficiente pasamos a silencio
+                if (vad_data->esperaMS >= vad_data->min_silence) {  //si esperamos lo suficiente pasamos a silencio
                     vad_data->state = ST_SILENCE;
                 } else {
                     vad_data->state = ST_MAYBE_SILENCE;

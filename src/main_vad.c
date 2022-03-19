@@ -27,19 +27,19 @@ int main(int argc, char *argv[]) {
 
     char *input_wav, *output_vad, *output_wav;
     float alpha1, alpha2;
-    unsigned int TV, TS, n_init;
+    int min_voice, min_silence, n_init;
 
     DocoptArgs args = docopt(argc, argv, /* help */ 1, /* version */ "2.0");
 
-    verbose             = args.verbose ? DEBUG_VAD : 0;
-    input_wav           = args.input_wav;
-    output_vad          = args.output_vad;
-    output_wav          = args.output_wav;
-    alpha1              = atof(args.alpha1);
-    alpha2              = atof(args.alpha2);
-    TV                  = atoi(args.TV);
-    TS                  = atoi(args.TS);
-    n_init              = atoi(args.n_init);
+    verbose     = args.verbose ? DEBUG_VAD : 0;
+    input_wav   = args.input_wav;
+    output_vad  = args.output_vad;
+    output_wav  = args.output_wav;
+    alpha1      = atof(args.alpha1);
+    alpha2      = atof(args.alpha2);
+    min_voice   = atoi(args.min_voice);
+    min_silence = atoi(args.min_silence);
+    n_init      = atoi(args.n_init);
 
     if (input_wav == 0 || output_vad == 0) {
         fprintf(stderr, "%s\n", args.usage_pattern);
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    vad_data = vad_open(sf_info.samplerate, alpha1, alpha2, n_init, TV, TS);
+    vad_data = vad_open(sf_info.samplerate, alpha1, alpha2, n_init, min_voice, min_silence);
 
     /* Allocate memory for buffers */
     frame_size   = vad_frame_size(vad_data);
