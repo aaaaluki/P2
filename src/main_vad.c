@@ -27,8 +27,7 @@ int main(int argc, char *argv[]) {
 
     char *input_wav, *output_vad, *output_wav;
     float alpha1, alpha2;
-    int TV, TS, n_init; // Tiempos de Maybe Silence/Voice a Silence/Voice
-    float min_silence_time, min_voice_time;
+    unsigned int TV, TS, n_init;
 
     DocoptArgs args = docopt(argc, argv, /* help */ 1, /* version */ "2.0");
 

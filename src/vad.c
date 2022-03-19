@@ -7,7 +7,6 @@
 #include "vad.h"
 
 const float FRAME_TIME = 10.0F; /* in ms. */
-int esperaV=0, esperaS=0; 
 
 /* 
  * As the output state is only ST_VOICE, ST_SILENCE, or ST_UNDEF,
@@ -57,10 +56,12 @@ VAD_DATA * vad_open(float rate, float alpha1, float alpha2, int n_init, float TV
   vad_data->frame_length = rate * FRAME_TIME * 1e-3;
   vad_data->alpha1 = alpha1;
   vad_data->alpha2 = alpha2;
+  vad_data->TV = TV;
+  vad_data->TS = TS;
+  vad_data->esperaMS = 0;
+  vad_data->esperaMV = 0;
   vad_data->n_init = n_init;
   vad_data->frame_counter = 0;
-  vad_data->TS = TS;
-  vad_data->TV = TV;
   return vad_data;
 }
 
@@ -102,7 +103,6 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
             } else {
                 vad_data->state = ST_SILENCE;
                 vad_data->p1 = 10*log10f(vad_data->p1);
-                esperaS = 0;    //no se si hace falta inicializarlos aquí
             }
             break;
 
@@ -110,46 +110,45 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
             if (f.p < vad_data->p1 + vad_data->alpha1) {
                 vad_data->state = ST_SILENCE;
             } else {
+                vad_data->esperaMV = 0;
                 vad_data->state = ST_MAYBE_VOICE;
-                esperaV=0;
             }
             break;
 
         case ST_MAYBE_SILENCE:
-            if (f.p < vad_data->p1 + vad_data->alpha1 && f.p < vad_data->p1 + vad_data->alpha2) {
-                if (esperaS == vad_data->TS) {  //si esperamos lo suficiente pasamos a silencio
-                    vad_data->state = ST_SILENCE; 
+            if (f.p < vad_data->p1 + vad_data->alpha2) {
+                if (vad_data->esperaMS >= vad_data->TS) {  //si esperamos lo suficiente pasamos a silencio
+                    vad_data->state = ST_SILENCE;
                 } else {
                     vad_data->state = ST_MAYBE_SILENCE;
-                    esperaS++;
                 }
             } else {
                 vad_data->state = ST_VOICE;
             }
+            
+            vad_data->esperaMS++;
             break;
 
         case ST_MAYBE_VOICE:
                 if (f.p > vad_data->p1 + vad_data->alpha1) {
-                    vad_data->state = ST_MAYBE_VOICE;
-                    if (f.p > vad_data->p1 + vad_data->alpha2 && esperaV == vad_data->TV) { //si esperamos suficiente pasamos a voz
+                    if (vad_data->esperaMV >= vad_data->TV) {
                         vad_data->state = ST_VOICE;
                     } else {
                         vad_data->state = ST_MAYBE_VOICE;
-                        esperaV++;
                     }
                 } else {
                     vad_data->state = ST_SILENCE;
                 }
-                
+
+                vad_data->esperaMV++;
             break;
 
         case ST_VOICE: 
-            if (f.p > vad_data->p1 + vad_data->alpha1 && f.p > vad_data->p1 + vad_data->alpha2) 
-            {
+            if (f.p > vad_data->p1 + vad_data->alpha2) {
                 vad_data->state = ST_VOICE;
-            }else{
+            } else {
                 vad_data->state = ST_MAYBE_SILENCE;
-                esperaS=0;
+                vad_data->esperaMS = 0;
             } 
             break;
 

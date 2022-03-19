@@ -21,6 +21,8 @@ typedef struct {
   float alpha2;
   float TV;       //tiempo MV a V
   float TS;       //Tiempo MS a S
+  unsigned int esperaMS;
+  unsigned int esperaMV;
   unsigned int n_init;
   unsigned int frame_counter;
 } VAD_DATA;
