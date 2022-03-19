@@ -3,6 +3,7 @@
 
 import os
 import subprocess
+import sys
 from pathlib import Path
 from typing import Dict
 
@@ -115,10 +116,14 @@ if __name__ == '__main__':
     alpha1 = np.linspace(0, 10, num=N_SAMPLES)
     alpha2 = np.linspace(0, 20, num=N_SAMPLES)
 
-    print('Time estimation: {:.2f} s'.format(T_EXEC* N_SAMPLES*N_SAMPLES*N_ITERS))
+    nIters = N_ITERS
+    if len(sys.argv) > 1:
+        nIters = int(sys.argv[1])
 
-    for i in range(N_ITERS):
-        print('Iteration {}/{}'.format(i, N_ITERS))
+    print('Time estimation: {:.2f} s'.format(T_EXEC* N_SAMPLES*N_SAMPLES*nIters))
+
+    for i in range(nIters):
+        print('Iteration {}/{}'.format(i, nIters))
 
         alphas_range = plot(alpha1, alpha2)
         
