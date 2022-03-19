@@ -98,7 +98,7 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
         case ST_INIT:
             // Hacer la media de las primeras n_init tramas
             if (vad_data->frame_counter < vad_data->n_init) {
-                vad_data->k0 += powf(10.0f, f.p / 10) / vad_data->n_init;
+                vad_data->k0 += powf(10.0, f.p / 10) / vad_data->n_init;
                 vad_data->frame_counter++;
             } else {
                 vad_data->state = ST_SILENCE;
