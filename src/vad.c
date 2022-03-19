@@ -115,20 +115,6 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
             }
             break;
 
-        case ST_MAYBE_SILENCE:
-            if (f.p < vad_data->p1 + vad_data->alpha2) {
-                if (vad_data->esperaMS >= vad_data->TS) {  //si esperamos lo suficiente pasamos a silencio
-                    vad_data->state = ST_SILENCE;
-                } else {
-                    vad_data->state = ST_MAYBE_SILENCE;
-                }
-            } else {
-                vad_data->state = ST_VOICE;
-            }
-            
-            vad_data->esperaMS++;
-            break;
-
         case ST_MAYBE_VOICE:
                 if (f.p > vad_data->p1 + vad_data->alpha1) {
                     if (vad_data->esperaMV >= vad_data->TV) {
@@ -150,6 +136,20 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
                 vad_data->state = ST_MAYBE_SILENCE;
                 vad_data->esperaMS = 0;
             } 
+            break;
+
+        case ST_MAYBE_SILENCE:
+            if (f.p < vad_data->p1 + vad_data->alpha2) {
+                if (vad_data->esperaMS >= vad_data->TS) {  //si esperamos lo suficiente pasamos a silencio
+                    vad_data->state = ST_SILENCE;
+                } else {
+                    vad_data->state = ST_MAYBE_SILENCE;
+                }
+            } else {
+                vad_data->state = ST_VOICE;
+            }
+            
+            vad_data->esperaMS++;
             break;
 
         case ST_UNDEF:
