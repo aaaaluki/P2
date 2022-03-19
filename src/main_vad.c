@@ -21,9 +21,9 @@ int main(int argc, char *argv[]) {
     VAD_STATE state, last_state;
 
     float *buffer, *buffer_zeros;
-    float frame_duration, time_since_change; /* in seconds */
-    int frame_size;                          /* in samples */
-    unsigned int t, last_t, frame_count;     /* in frames */
+    float frame_duration;                /* in seconds */
+    int frame_size;                      /* in samples */
+    unsigned int t, last_t, frame_count; /* in frames */
 
     char *input_wav, *output_vad, *output_wav;
     float alpha1, alpha2;
@@ -40,8 +40,6 @@ int main(int argc, char *argv[]) {
     alpha2              = atof(args.alpha2);
     TV                  = atoi(args.TV);
     TS                  = atoi(args.TS);
-    min_silence_time    = (float)atoi(args.min_silence) / 1000;
-    min_voice_time      = (float)atoi(args.min_voice) / 1000;
     n_init              = atoi(args.n_init);
 
     if (input_wav == 0 || output_vad == 0) {
@@ -75,6 +73,7 @@ int main(int argc, char *argv[]) {
     }
 
     vad_data = vad_open(sf_info.samplerate, alpha1, alpha2, n_init, TV, TS);
+
     /* Allocate memory for buffers */
     frame_size   = vad_frame_size(vad_data);
     buffer       = (float *) malloc(frame_size * sizeof(float));
@@ -82,7 +81,7 @@ int main(int argc, char *argv[]) {
     for (i=0; i< frame_size; ++i) buffer_zeros[i] = 0.0F;
 
     frame_duration = (float) frame_size / (float) sf_info.samplerate;
-    last_state = ST_UNDEF;
+    last_state = ST_SILENCE;    // Supongamos que empezamos con silencio
     frame_count = 0;
 
     /* For each frame ... */
@@ -106,22 +105,16 @@ int main(int argc, char *argv[]) {
         // Si hay cambio de estado y esta definido
         if (state != last_state && state != ST_UNDEF) {
             
-            // Mirar que se llegue al mínimo tiempo antes de decidir
-            time_since_change = (t - last_t) * frame_duration;
-            if ((last_state == ST_VOICE && time_since_change >= min_voice_time) ||
-                (last_state == ST_SILENCE && time_since_change >= min_silence_time)) {
+            fprintf(vadfile, "%.5f\t%.5f\t%s\n", last_t * frame_duration,
+                    t * frame_duration, state2str(last_state));
 
-                fprintf(vadfile, "%.5f\t%.5f\t%s\n", last_t * frame_duration,
-                        t * frame_duration, state2str(last_state));
-
-                last_t = t;
-
-                if (last_state == ST_VOICE) {
-                    frame_count = 0;
-                }
+            if (last_state == ST_VOICE) {
+                // Empezar a contar frames para silenciar
+                frame_count = 0;
             }
 
             last_state = state;
+            last_t = t;
         }
 
         if (sndfile_out != 0 && last_t == t) {
