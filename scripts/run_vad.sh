@@ -12,7 +12,8 @@ else
 fi
 
 # Write here the name and path of your program and database
-DIR_P2=$HOME/PAV/P2
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+DIR_P2="$(dirname "$SCRIPT_DIR")"
 DB=$DIR_P2/db.v4
 CMD=$DIR_P2/bin/vad
 
