@@ -16,7 +16,9 @@ typedef struct {
   float sampling_rate;
   unsigned int frame_length;
   float last_feature; /* for debuggin purposes */
-  float p1;       //potencia 
+  float k0;
+  float k1;
+  float k2;
   float alpha1;
   float alpha2;
   float TV;       //tiempo MV a V

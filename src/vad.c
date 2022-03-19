@@ -98,16 +98,18 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
         case ST_INIT:
             // Hacer la media de las primeras n_init tramas
             if (vad_data->frame_counter < vad_data->n_init) {
-                vad_data->p1 += powf(10.0f, f.p / 10) / vad_data->n_init;
+                vad_data->k0 += powf(10.0f, f.p / 10) / vad_data->n_init;
                 vad_data->frame_counter++;
             } else {
                 vad_data->state = ST_SILENCE;
-                vad_data->p1 = 10*log10f(vad_data->p1);
+                vad_data->k0 = 10*log10f(vad_data->k0);
+                vad_data->k1 = vad_data->k0 + vad_data->alpha1;
+                vad_data->k2 = vad_data->k0 + vad_data->alpha2;
             }
             break;
 
         case ST_SILENCE:
-            if (f.p < vad_data->p1 + vad_data->alpha1) {
+            if (f.p < vad_data->k1) {
                 vad_data->state = ST_SILENCE;
             } else {
                 vad_data->esperaMV = 0;
@@ -116,7 +118,7 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
             break;
 
         case ST_MAYBE_VOICE:
-                if (f.p > vad_data->p1 + vad_data->alpha1) {
+                if (f.p > vad_data->k1) {
                     if (vad_data->esperaMV >= vad_data->TV) {
                         vad_data->state = ST_VOICE;
                     } else {
@@ -130,7 +132,7 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
             break;
 
         case ST_VOICE: 
-            if (f.p > vad_data->p1 + vad_data->alpha2) {
+            if (f.p > vad_data->k2) {
                 vad_data->state = ST_VOICE;
             } else {
                 vad_data->state = ST_MAYBE_SILENCE;
@@ -139,7 +141,7 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
             break;
 
         case ST_MAYBE_SILENCE:
-            if (f.p < vad_data->p1 + vad_data->alpha2) {
+            if (f.p < vad_data->k2) {
                 if (vad_data->esperaMS >= vad_data->TS) {  //si esperamos lo suficiente pasamos a silencio
                     vad_data->state = ST_SILENCE;
                 } else {
