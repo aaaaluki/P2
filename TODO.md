@@ -12,7 +12,7 @@ estado actual.
         salida escribir en el las tramas de voz y poner a 0 las tramas de
         silencio.
 
-- [ ] **Calculo de `vad_data->p1`:** Coger la media (lineal o dB), min, max, ?¿ de las
+- [X] **Calculo de `vad_data->p1`:** Coger la media (lineal o dB), min, max, ?¿ de las
         primeras N tramas. Se tendria que mirar la función a aplicar a las N 
         muestras.
 
