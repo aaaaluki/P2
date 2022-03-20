@@ -49,13 +49,15 @@ Features compute_features(const float *x, int N) {
  * TODO: Init the values of vad_data
  */
 
-VAD_DATA * vad_open(float rate, float alpha1, float alpha2, float beta, int n_init, int min_voice, int min_silence) {
+VAD_DATA * vad_open(float rate, float alpha1, float alpha2, float beta1, float beta2, int n_init, int min_voice, int min_silence) {
   VAD_DATA *vad_data = malloc(sizeof(VAD_DATA));
   vad_data->state = ST_INIT;
   vad_data->sampling_rate = rate;
   vad_data->frame_length = rate * FRAME_TIME * 1e-3;
   vad_data->alpha1 = alpha1;
   vad_data->alpha2 = alpha2;
+  vad_data->beta1 = beta1;
+  vad_data->beta2 = beta2;
   vad_data->min_voice = min_voice;
   vad_data->min_silence = min_silence;
   vad_data->esperaS = 0;
@@ -100,8 +102,8 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
             // Hacer la media de las primeras n_init tramas
             if (vad_data->frame_counter < vad_data->n_init) {
                 vad_data->k0 += powf(10.0, f.p / 10) / vad_data->n_init;
-                vad_data->zcr += f.zcr / vad_data->n_init;
                 vad_data->frame_counter++;
+
             } else {
                 vad_data->state = ST_SILENCE;
                 vad_data->k0 = 10*log10f(vad_data->k0);
@@ -111,18 +113,18 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
             break;
 
         case ST_SILENCE:
-            if (f.p > vad_data->k2) {
+            if (f.p > vad_data->k2 && f.am > vad_data->beta2) {
                 vad_data->state = ST_MAYBE_VOICE;
                 vad_data->esperaV = 0;
-            } else if (f.p > vad_data->k1) {
+            } else if (f.p > vad_data->k1 && f.am > vad_data->beta1) {
                 vad_data->state = ST_VOICE;
             }
             break;
 
         case ST_MAYBE_VOICE:
-            if (f.p > vad_data->k1 && vad_data->esperaV >= vad_data->min_voice) {
+            if (f.p > vad_data->k1 && vad_data->esperaV >= vad_data->min_voice && f.am >= vad_data->beta1) {
                 vad_data->state = ST_VOICE;
-            } else if (f.p < vad_data->k2 && f.zcr < vad_data->zcr) {
+            } else if (f.p < vad_data->k2 && f.am < vad_data->beta2) {
                 vad_data->state = ST_SILENCE;
             }
 
@@ -130,7 +132,7 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
             break;
 
         case ST_VOICE: 
-            if (f.p < vad_data->k2 && f.zcr < vad_data->zcr) {
+            if (f.p < vad_data->k2 && f.am < vad_data->beta2) {
                 vad_data->state = ST_SILENCE;
             } else if (f.p < vad_data->k1) {
                 vad_data->state = ST_MAYBE_SILENCE;
@@ -139,7 +141,7 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
             break;
 
         case ST_MAYBE_SILENCE:
-            if (f.p > vad_data->k1) {
+            if (f.p > vad_data->k1 && f.am > vad_data->beta1) {
                 vad_data->state = ST_VOICE;
             } else if (f.p < vad_data->k2 && vad_data->esperaS >= vad_data->min_silence) {
                 vad_data->state = ST_SILENCE;

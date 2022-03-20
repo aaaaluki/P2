@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
     unsigned int t, last_t, frame_count; /* in frames */
 
     char *input_wav, *output_vad, *output_wav;
-    float alpha1, alpha2, beta;
+    float alpha1, alpha2, beta1, beta2;
     int min_voice, min_silence, n_init;
 
     DocoptArgs args = docopt(argc, argv, /* help */ 1, /* version */ "2.0");
@@ -37,7 +37,8 @@ int main(int argc, char *argv[]) {
     output_wav  = args.output_wav;
     alpha1      = atof(args.alpha1);
     alpha2      = atof(args.alpha2);
-    beta        = atof(args.beta);
+    beta1       = atof(args.beta1);
+    beta2       = atof(args.beta2);
     min_voice   = atoi(args.min_voice);
     min_silence = atoi(args.min_silence);
     n_init      = atoi(args.n_init);
@@ -72,7 +73,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    vad_data = vad_open(sf_info.samplerate, alpha1, alpha2, beta, n_init, min_voice, min_silence);
+    vad_data = vad_open(sf_info.samplerate, alpha1, alpha2, beta1, beta2, n_init, min_voice, min_silence);
 
     /* Allocate memory for buffers */
     frame_size   = vad_frame_size(vad_data);
