@@ -8,7 +8,7 @@ estado actual.
         escriben varios segmentos del mismo estado seguidos (S-S-S-V-...):
         ![Foto del problema](img/eliminacio-de-discontinuitats.png)
     
-- [ ] **Escribir en un fichero de salida:** En caso que se pase un fichero de
+- [X] **Escribir en un fichero de salida:** En caso que se pase un fichero de
         salida escribir en el las tramas de voz y poner a 0 las tramas de
         silencio.
 
