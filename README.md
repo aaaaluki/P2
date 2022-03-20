@@ -121,7 +121,7 @@ En orden de arriba a abajo: etiquetado manual, etiquetado automático, potencia,
 
 	* ¿Es capaz de sacar alguna conclusión a partir de la evolución de la tasa de cruces por cero?
 
-
+	  Lo primero que podemos ver es que se puede ver claramente cuando se producen señales fricativas. Por ejemplo, uno de los picos que se producen en el zcr ocurren al pronunciar el fonema /s. Además, hay una clara diferencia entre este pico y el valor que toma la gráfica cuando solo hay ruido/silencio.
 
 ### Desarrollo del detector de actividad vocal
 
@@ -138,7 +138,7 @@ En orden de arriba a abajo: etiquetado manual, etiquetado automático, potencia,
 
 	Todo esto se ha tenido en cuenta en la máquina de estados que hemos implementado para hacer funcionar el detector de voz. Inicialmente empezamos en un estado que hemos llamado **ST_INIT**, donde calculamos la potencia media de las Ninit tramas iniciales y definimos los umbrales que nos harán entrar en los 4 diferentes estados de nuestra máquina: **ST_SILENCE**, **ST_VOICE**, **ST_MAYBE_VOICE**, **ST_MAYBE_SILENCE**. 
 
-	Dado que ya está todo el código a disposición, solo mostraremos el código que muestra cómo hemos calculado la potencia ya que es lo más importante para llegar a la decisión correcta:
+	Dado que ya está todo el código a disposición, solo mostraremos el código que muestra cómo hemos calculado la potencia y cómo hemos definido la estructura del vad_data (muy importante en la máquina de estados) ya que es lo más importante para llegar a la decisión correcta:
 
 	```c 
 	case ST_INIT:
