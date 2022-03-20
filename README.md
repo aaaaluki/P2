@@ -183,7 +183,7 @@ En orden de arriba a abajo: etiquetado manual, etiquetado automático, potencia,
 	} VAD_DATA;
 	```
 
-	Cabe destacar que parámetros como alfa1, alfa2, gamma, min_voice, min_silence y Ninit pueden pasarse como argumentos al programa
+	Cabe destacar que parámetros como `alfa1`, `alfa2`, `gamma`, `min_voice`, `min_silence` y `n_init` pueden pasarse como argumentos al programa
 
 
 - Inserte una gráfica en la que se vea con claridad la señal temporal, el etiquetado manual y la detección
@@ -233,11 +233,14 @@ En orden de arriba a abajo: etiquetado manual, etiquetado automático, potencia,
 
 
 
-
 ### Contribuciones adicionales y/o comentarios acerca de la práctica
 
 - Indique a continuación si ha realizado algún tipo de aportación suplementaria (algoritmos de detección o 
   parámetros alternativos, etc.).
+
+  No se ha realizado ningun tipo de aportación suplementaria, nos hemos ceñido a usar los métodos descritos
+  en el PDF dado.
+
 
 - Si lo desea, puede realizar también algún comentario acerca de la realización de la práctica que
   considere de interés de cara a su evaluación.
