@@ -105,6 +105,7 @@ Ejercicios
   continuación, una captura de `wavesurfer` en la que se vea con claridad la señal temporal, el contorno de
   potencia y la tasa de cruces por cero, junto con el etiquetado manual de los segmentos.
 
+(img/pot_transcManual.png)
 
 - A la vista de la gráfica, indique qué valores considera adecuados para las magnitudes siguientes:
 
@@ -114,6 +115,7 @@ Ejercicios
 	* Duración mínima razonable de los segmentos de voz y silencio.
 
 	* ¿Es capaz de sacar alguna conclusión a partir de la evolución de la tasa de cruces por cero?
+
 
 
 ### Desarrollo del detector de actividad vocal
@@ -176,7 +178,7 @@ Ejercicios
 	} VAD_DATA;
 	```
 
-	Cabe destacar que parámetros como `alfa1`, `alfa2`, `gamma`, `min_voice`, `min_silence` y `n_init` pueden pasarse como argumentos al programa
+	Cabe destacar que parámetros como alfa1, alfa2, gamma, min_voice, min_silence y Ninit pueden pasarse como argumentos al programa
 
 
 - Inserte una gráfica en la que se vea con claridad la señal temporal, el etiquetado manual y la detección
@@ -204,7 +206,7 @@ Ejercicios
 	===> TOTAL: 94.328%
     ```
 
-	Como podemos ver, los resultados son bastante buenos dado que en un **`94.328 %`** de los casos se detecta correctamente cuando hay voz y silencio en una señal.
+	Como podemos ver, los resultados son bastante buenos dado que en un 94.328% de los casos se detecta correctamente cuando hay voz y silencio en una señal.
 
 ### Trabajos de ampliación
 
@@ -214,15 +216,10 @@ Ejercicios
   la que se vea con claridad la señal antes y después de la cancelación (puede que `wavesurfer` no sea la
   mejor opción para esto, ya que no es capaz de visualizar varias señales al mismo tiempo).
 
-  ![Fichero original](img/comparacion-etiquetados.png)
-  ![Fichero silenciado](img/fichero-silenciado.png)
-
 #### Gestión de las opciones del programa usando `docopt_c`
 
 - Si ha usado `docopt_c` para realizar la gestión de las opciones y argumentos del programa `vad`, inserte
   una captura de pantalla en la que se vea el mensaje de ayuda del programa.
-
-  ![Opciones](img/opciones.png)
 
 
 ### Contribuciones adicionales y/o comentarios acerca de la práctica
@@ -232,19 +229,6 @@ Ejercicios
 
 - Si lo desea, puede realizar también algún comentario acerca de la realización de la práctica que
   considere de interés de cara a su evaluación.
-
-  Para encontrar las alfas óptimas hemos escrito un script de python
-  ([get_simple_alphas.py](scripts/get_simple_alphas.py)), su funcionamiento es parecido al conjunto de
-  comandos bash explicado en clase. Escoje un rango para alfa1 y alfa2, y encuentra el máximo, esto lo repite
-  3 veces haciendo "zoom" cada vez. Va bastante bien y es relativamente rapido (unos 90 s en mi PC, 30s por
-  iteración), a parte hay la opción de hacer un plot3D con los puntos calculados (me parecio divertido hacerlo
-  :eyes:).
-
-  Una vez teniamos las alfas era ir probando los demas valores hasta encontrar el máximo.
-
-  Hay otro script de python para encontrar todos los parametros óptimos ([get_all_coefs.py](scripts/get_all_coefs.py)),
-  en teoria tendria que funcionar pero tardaria mucho (horas). El funcionamiento es el mismo que con dos alfas pero con
-  6 parametros en este caso, tarda demasiado para ser útil.
 
 
 ### Antes de entregar la práctica
