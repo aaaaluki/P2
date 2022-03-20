@@ -121,16 +121,84 @@ Ejercicios
 - Complete el código de los ficheros de la práctica para implementar un detector de actividad vocal tan
   exacto como sea posible. Tome como objetivo la maximización de la puntuación-F `TOTAL`.
 
+	Con tal de que el detector de actividad vocal funciona correctamente, hemos decidido tener en cuenta varios aspectos:
+
+	1. La potencia media (en dBs) de las Ninit primeras tramas.
+	2. La tasa de cruces por cero, zcr.
+	3. Duración mínima de silencio, en nuestro programa *min_silence*
+	4. Duración mínima de la voz, en nuestro programa *min_voice*
+	5. Duración máxima de los estados *maybe voice* y *maybe silence*
+
+	Todo esto se ha tenido en cuenta en la máquina de estados que hemos implementado para hacer funcionar el detector de voz. Inicialmente empezamos en un estado que hemos llamado **ST_INIT**, donde calculamos la potencia media de las Ninit tramas iniciales y definimos los umbrales que nos harán entrar en los 4 diferentes estados de nuestra máquina: **ST_SILENCE**, **ST_VOICE**, **ST_MAYBE_VOICE**, **ST_MAYBE_SILENCE**. 
+
+	Dado que ya está todo el código a disposición, solo mostraremos el código que muestra cómo hemos calculado la potencia ya que es lo más importante para llegar a la decisión correcta:
+
+	```c 
+	case ST_INIT:
+            if (vad_data->frame_counter < vad_data->n_init) {	//hacemos esto durante las Ninit primeras tramas de la señal
+                vad_data->k0 += powf(10.0, f.p / 10) / vad_data->n_init;
+                vad_data->zcr += f.zcr / vad_data->n_init;
+                vad_data->frame_counter++;
+
+            } else {
+                vad_data->state = ST_SILENCE;
+                vad_data->k0 = 10*log10f(vad_data->k0);
+                vad_data->k1 = vad_data->k0 + vad_data->alpha1;
+                vad_data->k2 = vad_data->k0 + vad_data->alpha2;
+                vad_data->zcr += vad_data->gamma;
+            }
+            break;
+	```
+		
+	A partir de aquí, en función de si supera o no los umbrales calculados iremos pasando de un estado a otro. Otro aspecto importante de nuestro programa es la definición de la estructura de vad_data, donde guardamos todos los parámetros importantes de nuestro VAD:
+
+	```c
+	typedef struct {
+  	VAD_STATE state;
+  	float sampling_rate;
+  	unsigned int frame_length;
+  	float last_feature; 	/* for debuggin purposes */
+  	float k0;				//valor referencia, potencia media (dBs)
+  	float k1;				//Primer umbral
+  	float k2;				//Segundo umbral
+  	float alpha1;
+  	float alpha2;
+  	float beta1;			//Estos parámetros no se ha utilizado finalmente (beta1 y beta2)
+  	float beta2;			//Ya que se iban a utilizar mirando la amplitud media de la señal
+  	float gamma;
+  	int min_voice;
+  	int min_silence;
+  	int esperaS;
+  	int esperaV;
+  	unsigned int n_init;
+  	unsigned int frame_counter;
+  	float zcr;   			//tasa de cruces por cero que miraremos en el ruido
+	} VAD_DATA;
+	```
+
+	Cabe destacar que parámetros como alfa1, alfa2, gamma, min_voice, min_silence y Ninit pueden pasarse como argumentos al programa
+
+
 - Inserte una gráfica en la que se vea con claridad la señal temporal, el etiquetado manual y la detección
   automática conseguida para el fichero grabado al efecto. 
 
 
 - Explique, si existen. las discrepancias entre el etiquetado manual y la detección automática.
 
+
+
 - Evalúe los resultados sobre la base de datos `db.v4` con el script `vad_evaluation.pl` e inserte a 
   continuación las tasas de sensibilidad (*recall*) y precisión para el conjunto de la base de datos (sólo
   el resumen).
 
+	A continuación evaluaremos la calidad de nuestro programa mediante el script vad_evaluation.pl. Ejecuándolo, obtenemos los siguientes resultados:
+
+  	**************** Summary ****************
+	Recall V:371.79/382.74 97.14%   Precision V:371.79/413.42 89.93%   F-score V (2)  : 95.61%
+	Recall S:229.38/271.01 84.64%   Precision S:229.38/240.33 95.44%   F-score S (1/2): 93.07%
+	===> TOTAL: 94.328%
+
+	Como podemos ver, los resultados son bastante buenos dado que en un 94.328% de los casos se detecta correctamente cuando hay voz y silencio en una señal.
 
 ### Trabajos de ampliación
 
