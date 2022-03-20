@@ -49,7 +49,7 @@ Features compute_features(const float *x, int N) {
  * TODO: Init the values of vad_data
  */
 
-VAD_DATA * vad_open(float rate, float alpha1, float alpha2, int n_init, int min_voice, int min_silence) {
+VAD_DATA * vad_open(float rate, float alpha1, float alpha2, float beta, int n_init, int min_voice, int min_silence) {
   VAD_DATA *vad_data = malloc(sizeof(VAD_DATA));
   vad_data->state = ST_INIT;
   vad_data->sampling_rate = rate;

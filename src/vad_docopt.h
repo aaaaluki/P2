@@ -18,6 +18,7 @@ typedef struct {
     /* options with arguments */
     char *alpha1;
     char *alpha2;
+    char *beta;
     char *input_wav;
     char *min_silence;
     char *min_voice;
@@ -43,6 +44,7 @@ const char help_message[] =
 "   -w FILE, --output-wav=FILE   WAVE file with silences cleared\n"
 "   -1 FLOAT, --alpha1=FLOAT     Umbral silencio -> voz [default: 9.7824]\n"
 "   -2 FLOAT, --alpha2=FLOAT     Umbral voz -> silencio [default: 2.2080]\n"
+"   -b FLOAT, --beta=FLOAT       Coeficiente sumado al umbral del ZCR [default: 0]\n"
 "   --min-voice=INT              Minimo de tramas para ser considerado voz [default: 0]\n"
 "   --min-silence=INT            Minimo de tramas para ser considerado silencio [default: 9]\n"
 "   --n-init=INT                 Tramas a usar para calcular la media del umbral [default: 8]\n"
@@ -286,6 +288,9 @@ int elems_to_args(Elements *elements, DocoptArgs *args, bool help,
         } else if (!strcmp(option->olong, "--alpha2")) {
             if (option->argument)
                 args->alpha2 = option->argument;
+        } else if (!strcmp(option->olong, "--beta")) {
+            if (option->argument)
+                args->beta = option->argument;
         } else if (!strcmp(option->olong, "--input-wav")) {
             if (option->argument)
                 args->input_wav = option->argument;
@@ -324,8 +329,8 @@ int elems_to_args(Elements *elements, DocoptArgs *args, bool help,
 
 DocoptArgs docopt(int argc, char *argv[], bool help, const char *version) {
     DocoptArgs args = {
-        0, 0, 0, (char*) "9.7824", (char*) "2.2080", NULL, (char*) "9", (char*)
-        "0", (char*) "8", NULL, NULL,
+        0, 0, 0, (char*) "9.7824", (char*) "2.2080", (char*) "0", NULL, (char*)
+        "9", (char*) "0", (char*) "8", NULL, NULL,
         usage_pattern, help_message
     };
     Tokens ts;
@@ -339,6 +344,7 @@ DocoptArgs docopt(int argc, char *argv[], bool help, const char *version) {
         {NULL, "--version", 0, 0, NULL},
         {"-1", "--alpha1", 1, 0, NULL},
         {"-2", "--alpha2", 1, 0, NULL},
+        {"-b", "--beta", 1, 0, NULL},
         {"-i", "--input-wav", 1, 0, NULL},
         {NULL, "--min-silence", 1, 0, NULL},
         {NULL, "--min-voice", 1, 0, NULL},
@@ -346,7 +352,7 @@ DocoptArgs docopt(int argc, char *argv[], bool help, const char *version) {
         {"-o", "--output-vad", 1, 0, NULL},
         {"-w", "--output-wav", 1, 0, NULL}
     };
-    Elements elements = {0, 0, 11, commands, arguments, options};
+    Elements elements = {0, 0, 12, commands, arguments, options};
 
     ts = tokens_new(argc, argv);
     if (parse_args(&ts, &elements))
