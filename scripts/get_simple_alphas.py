@@ -86,8 +86,8 @@ def plot(alpha1: np.ndarray, alpha2: np.ndarray) -> np.ndarray:
         file.close()
 
     # Show maximum
-    alpha1_range = alpha1[alpha1_max_idx - 1], alpha1[alpha1_max_idx + 1]
-    alpha2_range = alpha2[alpha2_max_idx - 1], alpha2[alpha2_max_idx + 1]
+    alpha1_range = alpha1[max(alpha1_max_idx - 1, 0)], alpha1[min(alpha1_max_idx + 1, N_SAMPLES - 1)]
+    alpha2_range = alpha2[max(alpha2_max_idx - 1, 0)], alpha2[min(alpha2_max_idx + 1, N_SAMPLES - 1)]
     alphas_range = (alpha1_range, alpha2_range)
 
     print('Max value: {:.4f} % -> alpha1: {:.4f}, alpha2: {:.4f}'.format(val_max, alpha1[alpha1_max_idx], alpha2[alpha2_max_idx]))
@@ -114,7 +114,7 @@ def plot(alpha1: np.ndarray, alpha2: np.ndarray) -> np.ndarray:
 
 if __name__ == '__main__':
     alpha1 = np.linspace(0, 10, num=N_SAMPLES)
-    alpha2 = np.linspace(0, 20, num=N_SAMPLES)
+    alpha2 = np.linspace(0, 10, num=N_SAMPLES)
 
     nIters = N_ITERS
     if len(sys.argv) > 1:
@@ -123,7 +123,7 @@ if __name__ == '__main__':
     print('Time estimation: {:.2f} s'.format(T_EXEC* N_SAMPLES*N_SAMPLES*nIters))
 
     for i in range(nIters):
-        print('Iteration {}/{}'.format(i, nIters))
+        print('Iteration {}/{}'.format(i+1, nIters))
 
         alphas_range = plot(alpha1, alpha2)
         

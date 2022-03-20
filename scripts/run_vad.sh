@@ -3,7 +3,7 @@
 # Be sure that this file has execution permissions:
 # Use the nautilus explorer or chmod +x run_vad.sh
 
-if [[ $# -ge 2 ]]; then
+if [[ $# -eq 2 ]]; then
     ALPHA1=$1
     ALPHA2=$2
     DEFAULTS=0

@@ -18,7 +18,11 @@ for filewav in $DB/*/*wav; do
 
     filevad=${filewav/.wav/.vad}
 
-    $CMD -1 $1 -2 $2 -i $filewav -o $filevad || exit 1
+    if [[ $# -eq 5 ]]; then
+        $CMD -1 $1 -2 $2 --min-voice $3 --min-silence $4 --n-init $5 -i $filewav -o $filevad || exit 1
+    else
+        $CMD -1 $1 -2 $2 -i $filewav -o $filevad || exit 1
+    fi
 
 # Alternatively, uncomment to create output wave files
 #    filewavOut=${filewav/.wav/.vad.wav}
