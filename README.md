@@ -233,6 +233,18 @@ Ejercicios
 - Si lo desea, puede realizar también algún comentario acerca de la realización de la práctica que
   considere de interés de cara a su evaluación.
 
+  Para encontrar las alfas óptimas hemos escrito un script de python
+  ([get_simple_alphas.py](scripts/get_simple_alphas.py)), su funcionamiento es parecido al conjunto de
+  comandos bash explicado en clase. Escoje un rango para alfa1 y alfa2, y encuentra el máximo, esto lo repite
+  3 veces haciendo "zoom" cada vez. Va bastante bien y es relativamente rapido (unos 90 s en mi PC), a parte
+  hay la opción de hacer un plot3D con los puntos calculados (me parecio divertido hacerlo :eyes:).
+
+  Una vez teniamos las alfas era ir probando los demas valores hasta encontrar el máximo.
+
+  Hay otro script de python para encontrar todos los parametros óptimos ([get_all_coefs.py](scripts/get_all_coefs.py)),
+  en teoria tendria que funcionar pero tardaria mucho (horas). El funcionamiento es el mismo que con dos alfas pero con
+  6 parametros en este caso, tarda demasiado para ser útil.
+
 
 ### Antes de entregar la práctica
 
