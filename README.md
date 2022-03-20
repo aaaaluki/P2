@@ -176,7 +176,7 @@ Ejercicios
 	} VAD_DATA;
 	```
 
-	Cabe destacar que parámetros como alfa1, alfa2, gamma, min_voice, min_silence y Ninit pueden pasarse como argumentos al programa
+	Cabe destacar que parámetros como `alfa1`, `alfa2`, `gamma`, `min_voice`, `min_silence` y `n_init` pueden pasarse como argumentos al programa
 
 
 - Inserte una gráfica en la que se vea con claridad la señal temporal, el etiquetado manual y la detección
@@ -204,7 +204,7 @@ Ejercicios
 	===> TOTAL: 94.328%
     ```
 
-	Como podemos ver, los resultados son bastante buenos dado que en un 94.328% de los casos se detecta correctamente cuando hay voz y silencio en una señal.
+	Como podemos ver, los resultados son bastante buenos dado que en un **`94.328 %`** de los casos se detecta correctamente cuando hay voz y silencio en una señal.
 
 ### Trabajos de ampliación
 
@@ -236,8 +236,9 @@ Ejercicios
   Para encontrar las alfas óptimas hemos escrito un script de python
   ([get_simple_alphas.py](scripts/get_simple_alphas.py)), su funcionamiento es parecido al conjunto de
   comandos bash explicado en clase. Escoje un rango para alfa1 y alfa2, y encuentra el máximo, esto lo repite
-  3 veces haciendo "zoom" cada vez. Va bastante bien y es relativamente rapido (unos 90 s en mi PC), a parte
-  hay la opción de hacer un plot3D con los puntos calculados (me parecio divertido hacerlo :eyes:).
+  3 veces haciendo "zoom" cada vez. Va bastante bien y es relativamente rapido (unos 90 s en mi PC, 30s por
+  iteración), a parte hay la opción de hacer un plot3D con los puntos calculados (me parecio divertido hacerlo
+  :eyes:).
 
   Una vez teniamos las alfas era ir probando los demas valores hasta encontrar el máximo.
 
