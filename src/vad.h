@@ -23,8 +23,8 @@ typedef struct {
   float alpha2;
   int min_voice;
   int min_silence;
-  int esperaMS;
-  int esperaMV;
+  int esperaS;
+  int esperaV;
   unsigned int n_init;
   unsigned int frame_counter;
 } VAD_DATA;
