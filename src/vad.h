@@ -27,6 +27,7 @@ typedef struct {
   int esperaV;
   unsigned int n_init;
   unsigned int frame_counter;
+  float zcr;   //tasa de cruces por cero que miraremos en el ruido
 } VAD_DATA;
 
 /* Call this function before using VAD: 
