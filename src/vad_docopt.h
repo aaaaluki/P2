@@ -44,8 +44,8 @@ const char help_message[] =
 "   -i FILE, --input-wav=FILE    WAVE file for voice activity detection\n"
 "   -o FILE, --output-vad=FILE   Label file with the result of VAD\n"
 "   -w FILE, --output-wav=FILE   WAVE file with silences cleared\n"
-"   -1 FLOAT, --alpha1=FLOAT     Umbral silencio -> voz [default: 9.7824]\n"
-"   -2 FLOAT, --alpha2=FLOAT     Umbral voz -> silencio [default: 2.2080]\n"
+"   -1 FLOAT, --alpha1=FLOAT     Umbral silencio -> voz [default: 9.83]\n"
+"   -2 FLOAT, --alpha2=FLOAT     Umbral voz -> silencio [default: 3.09]\n"
 "   -b1 FLOAT, --beta1=FLOAT     Coeficiente sumado al umbral de la amplitud media [default: 0.00005]\n"
 "   -b2 FLOAT, --beta2=FLOAT     Coeficiente sumado al umbral de la amplitud media [default: 0.00002]\n"
 "   -g, FLOAT, --gamma=FLOAT     Coeficiente sumado al umbral del ZCR [default: -1000]\n"
@@ -339,7 +339,7 @@ int elems_to_args(Elements *elements, DocoptArgs *args, bool help,
 
 DocoptArgs docopt(int argc, char *argv[], bool help, const char *version) {
     DocoptArgs args = {
-        0, 0, 0, (char*) "9.7824", (char*) "2.2080", (char*) "0.00005", (char*)
+        0, 0, 0, (char*) "9.83", (char*) "3.09", (char*) "0.00005", (char*)
         "0.00002", (char*) "-1000", NULL, (char*) "9", (char*) "0", (char*) "8",
         NULL, NULL,
         usage_pattern, help_message
