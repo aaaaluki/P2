@@ -11,11 +11,12 @@ Options:
    -w FILE, --output-wav=FILE   WAVE file with silences cleared
    -1 FLOAT, --alpha1=FLOAT     Umbral silencio -> voz [default: 9.7824]
    -2 FLOAT, --alpha2=FLOAT     Umbral voz -> silencio [default: 2.2080]
-   -b1 FLOAT, --beta1=FLOAT       Coeficiente sumado al umbral del ZCR [default: 0.00005]
-   -b2 FLOAT, --beta2=FLOAT       Coeficiente sumado al umbral del ZCR [default: 0.00002]
+   -b1 FLOAT, --beta1=FLOAT     Coeficiente sumado al umbral de la amplitud media [default: 0.00005]
+   -b2 FLOAT, --beta2=FLOAT     Coeficiente sumado al umbral de la amplitud media [default: 0.00002]
+   -g, FLOAT, --gamma=FLOAT     Coeficiente sumado al umbral del ZCR [default: -1000]
    --min-voice=INT              Minimo de tramas para ser considerado voz [default: 0]
    --min-silence=INT            Minimo de tramas para ser considerado silencio [default: 9]
    --n-init=INT                 Tramas a usar para calcular la media del umbral [default: 8]
-   -v, --verbose  Show debug information
-   -h, --help     Show this screen
-   --version      Show the version of the project
+   -v, --verbose                Show debug information
+   -h, --help                   Show this screen
+   --version                    Show the version of the project

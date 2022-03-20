@@ -20,6 +20,7 @@ typedef struct {
     char *alpha2;
     char *beta1;
     char *beta2;
+    char *gamma;
     char *input_wav;
     char *min_silence;
     char *min_voice;
@@ -45,14 +46,15 @@ const char help_message[] =
 "   -w FILE, --output-wav=FILE   WAVE file with silences cleared\n"
 "   -1 FLOAT, --alpha1=FLOAT     Umbral silencio -> voz [default: 9.7824]\n"
 "   -2 FLOAT, --alpha2=FLOAT     Umbral voz -> silencio [default: 2.2080]\n"
-"   -b1 FLOAT, --beta1=FLOAT       Coeficiente sumado al umbral del ZCR [default: 5]\n"
-"   -b2 FLOAT, --beta2=FLOAT       Coeficiente sumado al umbral del ZCR [default: 10]\n"
+"   -b1 FLOAT, --beta1=FLOAT     Coeficiente sumado al umbral de la amplitud media [default: 0.00005]\n"
+"   -b2 FLOAT, --beta2=FLOAT     Coeficiente sumado al umbral de la amplitud media [default: 0.00002]\n"
+"   -g, FLOAT, --gamma=FLOAT     Coeficiente sumado al umbral del ZCR [default: -1000]\n"
 "   --min-voice=INT              Minimo de tramas para ser considerado voz [default: 0]\n"
 "   --min-silence=INT            Minimo de tramas para ser considerado silencio [default: 9]\n"
 "   --n-init=INT                 Tramas a usar para calcular la media del umbral [default: 8]\n"
-"   -v, --verbose  Show debug information\n"
-"   -h, --help     Show this screen\n"
-"   --version      Show the version of the project\n"
+"   -v, --verbose                Show debug information\n"
+"   -h, --help                   Show this screen\n"
+"   --version                    Show the version of the project\n"
 "";
 
 const char usage_pattern[] =
@@ -296,6 +298,9 @@ int elems_to_args(Elements *elements, DocoptArgs *args, bool help,
         } else if (!strcmp(option->olong, "--beta2")) {
             if (option->argument)
                 args->beta2 = option->argument;
+        } else if (!strcmp(option->olong, "--gamma")) {
+            if (option->argument)
+                args->gamma = option->argument;
         } else if (!strcmp(option->olong, "--input-wav")) {
             if (option->argument)
                 args->input_wav = option->argument;
@@ -334,8 +339,9 @@ int elems_to_args(Elements *elements, DocoptArgs *args, bool help,
 
 DocoptArgs docopt(int argc, char *argv[], bool help, const char *version) {
     DocoptArgs args = {
-        0, 0, 0, (char*) "9.7824", (char*) "2.2080", (char*) "0.00005", (char*) "0.00002", NULL, (char*)
-        "9", (char*) "0", (char*) "8", NULL, NULL,
+        0, 0, 0, (char*) "9.7824", (char*) "2.2080", (char*) "0.00005", (char*)
+        "0.00002", (char*) "-1000", NULL, (char*) "9", (char*) "0", (char*) "8",
+        NULL, NULL,
         usage_pattern, help_message
     };
     Tokens ts;
@@ -351,6 +357,7 @@ DocoptArgs docopt(int argc, char *argv[], bool help, const char *version) {
         {"-2", "--alpha2", 1, 0, NULL},
         {"-b1", "--beta1", 1, 0, NULL},
         {"-b2", "--beta2", 1, 0, NULL},
+        {"-g", "--gamma", 1, 0, NULL},
         {"-i", "--input-wav", 1, 0, NULL},
         {NULL, "--min-silence", 1, 0, NULL},
         {NULL, "--min-voice", 1, 0, NULL},
@@ -358,7 +365,7 @@ DocoptArgs docopt(int argc, char *argv[], bool help, const char *version) {
         {"-o", "--output-vad", 1, 0, NULL},
         {"-w", "--output-wav", 1, 0, NULL}
     };
-    Elements elements = {0, 0, 13, commands, arguments, options};
+    Elements elements = {0, 0, 14, commands, arguments, options};
 
     ts = tokens_new(argc, argv);
     if (parse_args(&ts, &elements))
