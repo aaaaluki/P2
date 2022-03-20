@@ -116,7 +116,7 @@ Ejercicios
 
 	* Duración mínima razonable de los segmentos de voz y silencio.
 
-	
+	  La duración mínima del segmento de voz es de 0.5s y la duración mínima de los segmentos de silencio es de 1s.
 
 	* ¿Es capaz de sacar alguna conclusión a partir de la evolución de la tasa de cruces por cero?
 
@@ -224,6 +224,8 @@ Ejercicios
 
 - Si ha usado `docopt_c` para realizar la gestión de las opciones y argumentos del programa `vad`, inserte
   una captura de pantalla en la que se vea el mensaje de ayuda del programa.
+
+
 
 
 ### Contribuciones adicionales y/o comentarios acerca de la práctica
