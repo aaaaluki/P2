@@ -21,9 +21,9 @@ int main(int argc, char *argv[]) {
     VAD_STATE state, last_state;
 
     float *buffer, *buffer_zeros;
-    float frame_duration;                /* in seconds */
-    int frame_size;                      /* in samples */
-    unsigned int t, last_t, frame_count; /* in frames */
+    float frame_duration;                               /* in seconds */
+    int frame_size;                                     /* in samples */
+    unsigned int t, last_t, frame_count, frame_silence_start; /* in frames */
 
     char *input_wav, *output_vad, *output_wav;
     float alpha1, alpha2, beta1, beta2, gamma;
@@ -85,6 +85,7 @@ int main(int argc, char *argv[]) {
     frame_duration = (float) frame_size / (float) sf_info.samplerate;
     last_state = ST_SILENCE;    // Supongamos que empezamos con silencio
     frame_count = 0;
+    frame_silence_start = 0;
 
     /* For each frame ... */
     for (t = last_t = 0;; t++) {
@@ -112,6 +113,7 @@ int main(int argc, char *argv[]) {
 
             if (last_state == ST_VOICE) {
                 // Empezar a contar frames para silenciar
+                frame_silence_start += frame_count; 
                 frame_count = 0;
             }
 
@@ -120,7 +122,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (sndfile_out != 0 && last_t == t) {
-            sf_seek(sndfile_out, -frame_size*frame_count, SEEK_CUR);
+            sf_seek(sndfile_out, frame_size*frame_silence_start, SEEK_SET);
 
             // Write zeros
             for (int i = 0; i < frame_count; i++)
@@ -137,7 +139,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (sndfile_out != 0 && last_state == ST_SILENCE) {
-        sf_seek(sndfile_out, -frame_size*frame_count, SEEK_CUR);
+        sf_seek(sndfile_out, frame_size*frame_silence_start, SEEK_SET);
 
         // Write zeros
         for (int i = 0; i < frame_count; i++)
