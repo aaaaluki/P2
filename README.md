@@ -112,7 +112,11 @@ Ejercicios
 	* Incremento del nivel potencia en dB, respecto al nivel correspondiente al silencio inicial, para
 	  estar seguros de que un segmento de señal se corresponde con voz.
 
+	  Viendo la gráfica, creemos que la potencia para poder considerar que el segmento corresponde a voz se encuentra entorno a los 14 dBs tomando como referencia el ruido inicial.
+
 	* Duración mínima razonable de los segmentos de voz y silencio.
+
+	
 
 	* ¿Es capaz de sacar alguna conclusión a partir de la evolución de la tasa de cruces por cero?
 
