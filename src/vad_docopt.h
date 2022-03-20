@@ -41,8 +41,8 @@ const char help_message[] =
 "   -i FILE, --input-wav=FILE    WAVE file for voice activity detection\n"
 "   -o FILE, --output-vad=FILE   Label file with the result of VAD\n"
 "   -w FILE, --output-wav=FILE   WAVE file with silences cleared\n"
-"   -1 FLOAT, --alpha1=FLOAT     Umbral silencio -> voz [default: 9.76]\n"
-"   -2 FLOAT, --alpha2=FLOAT     Umbral voz -> silencio [default: 2.20]\n"
+"   -1 FLOAT, --alpha1=FLOAT     Umbral silencio -> voz [default: 9.7824]\n"
+"   -2 FLOAT, --alpha2=FLOAT     Umbral voz -> silencio [default: 2.2080]\n"
 "   --min-voice=INT              Minimo de tramas para ser considerado voz [default: 0]\n"
 "   --min-silence=INT            Minimo de tramas para ser considerado silencio [default: 9]\n"
 "   --n-init=INT                 Tramas a usar para calcular la media del umbral [default: 8]\n"
@@ -324,8 +324,8 @@ int elems_to_args(Elements *elements, DocoptArgs *args, bool help,
 
 DocoptArgs docopt(int argc, char *argv[], bool help, const char *version) {
     DocoptArgs args = {
-        0, 0, 0, (char*) "9.76", (char*) "2.20", NULL, (char*) "9", (char*) "0",
-        (char*) "8", NULL, NULL,
+        0, 0, 0, (char*) "9.7824", (char*) "2.2080", NULL, (char*) "9", (char*)
+        "0", (char*) "8", NULL, NULL,
         usage_pattern, help_message
     };
     Tokens ts;

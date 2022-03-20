@@ -12,7 +12,7 @@
 
 float compute_power(const float *x, unsigned int N) {
     // Valor para que la pot. mínima sea -120 dB (consejo para la P2)
-    float power = 1.e-12;
+    float power = 1.e-5;
 
     for (int i = 0; i < N; i++) {
         power += x[i] * x[i];       //calculamos la potencia   
