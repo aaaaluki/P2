@@ -150,7 +150,7 @@ Ejercicios
             break;
 	```
 		
-	A partir de aquí, en función de si supera o no los umbrales calculados iremos pasando de un estado a otro. Otro aspecto importante de nuestro programa es la definición de la estructura de vad_data, donde guardamos todos los parámetros importantes de nuestro VAD:
+	A partir de aquí, en función de si supera o no los umbrales calculados iremos pasando de un estado a otro. Otro aspecto importante de nuestro programa es la definición de la estructura de `vad_data`, donde guardamos todos los parámetros importantes de nuestro VAD:
 
 	```c
 	typedef struct {
@@ -180,12 +180,16 @@ Ejercicios
 
 
 - Inserte una gráfica en la que se vea con claridad la señal temporal, el etiquetado manual y la detección
-  automática conseguida para el fichero grabado al efecto. 
+  automática conseguida para el fichero grabado al efecto.
+
+  ![Comparación](img/comparacion-etiquetados.png)
 
 
 - Explique, si existen. las discrepancias entre el etiquetado manual y la detección automática.
 
-
+    Comparando se puede ver que la detección automática pone los cambios de estado donde toca,
+    pero tambien pone algunos segmentos de voz en sitios donde no deberia. Estos etiquetados
+    incorrectos corresponden a chasquidos de lengua o algun ruido del fondo.
 
 - Evalúe los resultados sobre la base de datos `db.v4` con el script `vad_evaluation.pl` e inserte a 
   continuación las tasas de sensibilidad (*recall*) y precisión para el conjunto de la base de datos (sólo
@@ -193,10 +197,12 @@ Ejercicios
 
 	A continuación evaluaremos la calidad de nuestro programa mediante el script vad_evaluation.pl. Ejecuándolo, obtenemos los siguientes resultados:
 
+    ```
   	**************** Summary ****************
 	Recall V:371.79/382.74 97.14%   Precision V:371.79/413.42 89.93%   F-score V (2)  : 95.61%
 	Recall S:229.38/271.01 84.64%   Precision S:229.38/240.33 95.44%   F-score S (1/2): 93.07%
 	===> TOTAL: 94.328%
+    ```
 
 	Como podemos ver, los resultados son bastante buenos dado que en un 94.328% de los casos se detecta correctamente cuando hay voz y silencio en una señal.
 
