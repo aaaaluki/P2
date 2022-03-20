@@ -109,10 +109,10 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
             break;
 
         case ST_SILENCE:
-            if (f.p > vad_data->k1) {
+            if (f.p > vad_data->k2) {
                 vad_data->state = ST_MAYBE_VOICE;
                 vad_data->esperaV = 0;
-            } else if (f.p > vad_data->k2) {
+            } else if (f.p > vad_data->k1) {
                 vad_data->state = ST_VOICE;
             }
             break;
@@ -128,11 +128,11 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x) {   //maquina de estados
             break;
 
         case ST_VOICE: 
-            if (f.p < vad_data->k1) {
+            if (f.p < vad_data->k2) {
+                vad_data->state = ST_SILENCE;
+            } else if (f.p < vad_data->k1) {
                 vad_data->state = ST_MAYBE_SILENCE;
                 vad_data->esperaS = 0;
-            } else if (f.p < vad_data->k2) {
-                vad_data->state = ST_SILENCE;
             }
             break;
 
