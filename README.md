@@ -148,11 +148,11 @@ En orden de arriba a abajo: etiquetado manual, etiquetado automático, potencia,
                 vad_data->frame_counter++;
 
             } else {
-                vad_data->state = ST_SILENCE;
-                vad_data->k0 = 10*log10f(vad_data->k0);
-                vad_data->k1 = vad_data->k0 + vad_data->alpha1;
-                vad_data->k2 = vad_data->k0 + vad_data->alpha2;
-                vad_data->zcr += vad_data->gamma;
+                vad_data->state = ST_SILENCE;					//el estado en el que comenzamos es en silencio
+                vad_data->k0 = 10*log10f(vad_data->k0);			//cogemos la pot. de referencia en dBs
+                vad_data->k1 = vad_data->k0 + vad_data->alpha1;	//Calculamos el umbral a partir del cual puede que haya voz
+                vad_data->k2 = vad_data->k0 + vad_data->alpha2;	//Umbral a partir del cual seguro que estamos en voz
+                vad_data->zcr += vad_data->gamma;				//Umbral definido en el zcr
             }
             break;
 	```
